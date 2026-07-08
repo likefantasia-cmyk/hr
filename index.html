@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="國營題庫">
+<meta name="theme-color" content="#111111">
+<title>國營人資題庫</title>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getFirestore,doc,setDoc,getDoc,collection,getDocs,deleteDoc,query,orderBy}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const cfg={apiKey:"AIzaSyCCl-dmOTiB3FMoavkaA6m_ZAHTPJgxNAs",authDomain:"kumoen.firebaseapp.com",projectId:"kumoen",storageBucket:"kumoen.firebasestorage.app",messagingSenderId:"407042193066",appId:"1:407042193066:web:f48c1b9ce10019437c42d3"};
+const app=initializeApp(cfg);
+const db=getFirestore(app);
+const REF=doc(db,"users","kumo_hr_question_bank");
+const LEGACY_REF=doc(db,"users","kumo");
+const BACKUPS=collection(db,"users","kumo_hr_question_bank","backups");
+const BK="hrq-bank-backup";
+const MT="hrq-meta-backup";
+const LAST_BACKUP_AT="hrq-last-cloud-backup-at";
+const LAST_BACKUP_COUNT="hrq-last-cloud-backup-count";
+
+function backup(bank,meta){
+  try{
+    if(Array.isArray(bank))localStorage.setItem(BK,JSON.stringify(bank));
+    if(meta)localStorage.setItem(MT,JSON.stringify(meta));
+  }catch(e){console.warn("backup",e);}
+}
+function restore(){
+  try{
+    return{
+      bank:JSON.parse(localStorage.getItem(BK)||"[]"),
+      meta:JSON.parse(localStorage.getItem(MT)||'{"today":"","doneToday":0,"sessions":0}')
+    };
+  }catch(e){return{bank:[],meta:{today:"",doneToday:0,sessions:0}};}
+}
+async function cloudLoad(){
+  const local=restore();
+  window._bank=local.bank;
+  window._meta=local.meta;
+  try{
+    const snap=await getDoc(REF);
+    if(snap.exists()){
+      const d=snap.data();
+      const cloudBank=Array.isArray(d.bank)?d.bank:[];
+      const cloudMeta=d.meta||local.meta;
+      if(cloudBank.length===0&&local.bank.length>0){
+        window._warn="雲端目前是空的，已先使用本機備份。";
+      }else if(local.bank.length>10&&cloudBank.length<local.bank.length*0.4){
+        window._warn="雲端題數異常偏少，已先使用本機較完整版本。";
+      }else{
+        window._bank=cloudBank;
+        window._meta=cloudMeta;
+        backup(cloudBank,cloudMeta);
+      }
+    }else{
+      const legacy=await getDoc(LEGACY_REF);
+      if(legacy.exists()){
+        const d=legacy.data();
+        const cloudBank=Array.isArray(d.hrQuestionBank)?d.hrQuestionBank:[];
+        const cloudMeta=d.hrQuestionMeta||local.meta;
+        if(cloudBank.length>0){
+          window._bank=cloudBank;
+          window._meta=cloudMeta;
+          backup(cloudBank,cloudMeta);
+        }
+      }
+    }
+  }catch(e){
+    window._warn="雲端暫時連不上，已進入本機備份模式。";
+    console.warn("cloudLoad",e);
+  }
+}
+async function cloudSave(){
+  try{
+    const bank=window._bank||[];
+    const meta=window._meta||{};
+    const local=restore();
+    if(local.bank.length>10&&bank.length<local.bank.length*0.4){
+      console.warn("blocked dangerous save");
+      window._lastCloudError="題數異常變少，已阻止覆蓋雲端。";
+      return false;
+    }
+    try{
+      await setDoc(REF,{bank,meta,updatedAt:Date.now()},{merge:true});
+      await maybeCreateBackup(bank,meta);
+    }catch(primaryError){
+      console.warn("primary cloud save failed, using legacy doc",primaryError);
+      await setDoc(LEGACY_REF,{hrQuestionBank:bank,hrQuestionMeta:meta,hrQuestionUpdatedAt:Date.now()},{merge:true});
+      window._lastCloudFallback="已同步到備援欄位";
+    }
+    backup(bank,meta);
+    window._lastCloudError="";
+    return true;
+  }catch(e){
+    window._lastCloudError=e.message||"雲端同步失敗";
+    console.warn("cloudSave",e);
+    return false;
+  }
+}
+async function maybeCreateBackup(bank,meta){
+  if(!Array.isArray(bank)||bank.length===0)return;
+  const lastAt=Number(localStorage.getItem(LAST_BACKUP_AT)||"0");
+  const lastCount=Number(localStorage.getItem(LAST_BACKUP_COUNT)||"0");
+  const now=Date.now();
+  if(bank.length===lastCount&&now-lastAt<30*60*1000)return;
+  await createCloudBackup(bank,meta,"auto");
+}
+async function createCloudBackup(bank,meta,kind){
+  const now=Date.now();
+  const id=new Date(now).toISOString().replace(/[:.]/g,"-");
+  await setDoc(doc(db,"users","kumo_hr_question_bank","backups",id),{
+    bank,meta,kind:kind||"manual",count:bank.length,createdAt:now
+  });
+  localStorage.setItem(LAST_BACKUP_AT,String(now));
+  localStorage.setItem(LAST_BACKUP_COUNT,String(bank.length));
+  await pruneBackups();
+}
+async function pruneBackups(){
+  const snap=await getDocs(query(BACKUPS,orderBy("createdAt","desc")));
+  const docs=snap.docs;
+  await Promise.all(docs.slice(20).map(d=>deleteDoc(d.ref)));
+}
+async function cloudForceBackup(){
+  const bank=window._bank||[];
+  const meta=window._meta||{};
+  if(!bank.length)throw new Error("目前沒有題目可以備份");
+  await createCloudBackup(bank,meta,"manual");
+}
+async function cloudListBackups(){
+  const snap=await getDocs(query(BACKUPS,orderBy("createdAt","desc")));
+  return snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+async function cloudRestoreBackup(id){
+  const snap=await getDoc(doc(db,"users","kumo_hr_question_bank","backups",id));
+  if(!snap.exists())throw new Error("找不到這份備份");
+  const d=snap.data();
+  const bank=Array.isArray(d.bank)?d.bank:[];
+  const meta=d.meta||{today:"",doneToday:0,sessions:0};
+  if(!bank.length)throw new Error("這份備份沒有題目");
+  if((window._bank||[]).length)await createCloudBackup(window._bank||[],window._meta||{},"before_restore");
+  await setDoc(REF,{bank,meta,updatedAt:Date.now(),restoredFrom:id},{merge:true});
+  backup(bank,meta);
+  window._bank=bank;
+  window._meta=meta;
+  return {bank,meta};
+}
+window.cloudSave=cloudSave;
+window.cloudForceBackup=cloudForceBackup;
+window.cloudListBackups=cloudListBackups;
+window.cloudRestoreBackup=cloudRestoreBackup;
+cloudLoad().then(()=>{window._cloudReady=true;if(window.boot)window.boot();});
+</script>
+<style>
+:root{
+  --bg:#111;--panel:#191919;--panel2:#222;--line:#333;--line2:#444;
+  --text:#f4f1ec;--muted:#9c9489;--soft:#c8bdb0;
+  --gold:#d89a3a;--gold2:#f0b35b;--goldbg:rgba(216,154,58,.12);--goldbr:rgba(216,154,58,.35);
+  --green:#32c56a;--red:#e15e57;--blue:#75a7ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;overflow:hidden}
+button,input,textarea,select{font:inherit;color:inherit}
+button{border:0;background:none;cursor:pointer}
+textarea{resize:vertical}
+#app{max-width:520px;height:100dvh;margin:0 auto;display:flex;flex-direction:column;overflow:hidden;background:linear-gradient(180deg,#141414,#101010)}
+.view{display:none;flex:1;overflow:auto;padding:18px 18px 92px}.view.show{display:block}
+.top{padding:34px 18px 14px}
+.title{font-size:31px;font-weight:800;letter-spacing:.5px}.title span{color:var(--gold2)}
+.sub{color:var(--muted);font-size:13px;margin-top:5px;line-height:1.5}
+.sync{display:flex;align-items:center;gap:7px;margin-top:9px;color:var(--muted);font-size:12px}
+.dot{width:7px;height:7px;border-radius:99px;background:var(--green)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 18px 16px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 6px;text-align:center}
+.num{font-size:25px;font-weight:800;color:var(--gold2)}.lab{font-size:10px;color:var(--muted);margin-top:2px}
+.section{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:1.4px;margin:18px 0 8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:10px}
+.row{display:flex;gap:9px;align-items:center}.row.wrap{flex-wrap:wrap}.grow{flex:1}
+.btn{background:var(--gold);color:#17100a;border-radius:8px;padding:12px 14px;font-weight:800;text-align:center}
+.btn:disabled{opacity:.35}.btn.secondary{background:var(--panel2);color:var(--soft);border:1px solid var(--line2)}
+.btn.ghost{background:transparent;border:1px solid var(--goldbr);color:var(--gold2)}
+.btn.danger{background:rgba(225,94,87,.14);border:1px solid rgba(225,94,87,.35);color:#ff8d88}
+.btn.small{padding:8px 10px;font-size:12px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.field label{font-size:11px;color:var(--muted);font-weight:700}
+.inp,.sel{width:100%;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:11px 12px;outline:none}
+.inp:focus,.sel:focus{border-color:var(--gold)}
+.hint{font-size:12px;color:var(--muted);line-height:1.7}
+.pill{display:inline-flex;align-items:center;border:1px solid var(--goldbr);background:var(--goldbg);color:var(--gold2);border-radius:999px;padding:3px 8px;font-size:11px;font-weight:700}
+.pill.red{border-color:rgba(225,94,87,.35);background:rgba(225,94,87,.12);color:#ff9b96}
+.pill.blue{border-color:rgba(117,167,255,.35);background:rgba(117,167,255,.11);color:#9fc0ff}
+.qtitle{font-size:17px;font-weight:800;line-height:1.6;margin:8px 0 12px;white-space:pre-wrap}
+.opt{width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:12px;margin:7px 0;line-height:1.45}
+.opt.correct{border-color:rgba(50,197,106,.65);background:rgba(50,197,106,.13)}
+.opt.wrong{border-color:rgba(225,94,87,.65);background:rgba(225,94,87,.13)}
+.explain{display:none;margin-top:12px;color:var(--soft);font-size:14px;line-height:1.8;border-top:1px solid var(--line);padding-top:12px;white-space:pre-wrap}
+.list-item{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:8px}
+.list-q{font-weight:800;line-height:1.5}.list-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.photo-preview{width:100%;max-height:360px;object-fit:contain;background:#0b0b0b;border:1px solid var(--line);border-radius:8px;margin-top:10px}
+.ai-result{border:1px solid var(--goldbr);background:var(--goldbg);border-radius:8px;padding:12px;margin-bottom:10px}
+.ai-result .list-q{font-size:15px}
+nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:520px;display:grid;grid-template-columns:repeat(5,1fr);background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{padding:9px 2px 10px;color:var(--muted);font-size:11px;font-weight:800}
+nav button b{display:block;font-size:17px;margin-bottom:2px}nav button.on{color:var(--gold2)}
+.toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%) translateY(20px);background:#eee;color:#111;border-radius:8px;padding:10px 14px;font-weight:800;font-size:13px;opacity:0;transition:.2s;pointer-events:none;max-width:88%;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{padding:42px 16px;text-align:center;color:var(--muted);line-height:1.7}
+@media (min-width:720px){#app{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <div class="title">國營<span>人資題庫</span></div>
+    <div class="sub">選擇題、錯題本、今日複習。資料使用 Firebase 雲端同步，並保留本機備份。</div>
+    <div class="sync"><span class="dot" id="dot"></span><span id="syncText">載入中</span></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="num" id="stTotal">0</div><div class="lab">總題數</div></div>
+    <div class="stat"><div class="num" id="stDue">0</div><div class="lab">今日複習</div></div>
+    <div class="stat"><div class="num" id="stWrong">0</div><div class="lab">錯題</div></div>
+    <div class="stat"><div class="num" id="stRate">0%</div><div class="lab">正確率</div></div>
+  </div>
+
+  <section class="view show" id="v-home"></section>
+  <section class="view" id="v-practice"></section>
+  <section class="view" id="v-add"></section>
+  <section class="view" id="v-bank"></section>
+  <section class="view" id="v-wrong"></section>
+
+  <nav>
+    <button class="on" id="n-home" onclick="go('home')"><b>⌂</b>首頁</button>
+    <button id="n-practice" onclick="go('practice')"><b>?</b>練習</button>
+    <button id="n-add" onclick="go('add')"><b>＋</b>新增</button>
+    <button id="n-bank" onclick="go('bank')"><b>▤</b>題庫</button>
+    <button id="n-wrong" onclick="go('wrong')"><b>!</b>錯題</button>
+  </nav>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let BANK=[],META={today:"",doneToday:0,sessions:0},TAB="home",CURRENT=null,QUEUE=[],SAVE_TMR=null,PHOTO=null,AI_PEND=[];
+let KEY=localStorage.getItem("hrq-openai-key")||"";
+const subjects=["企業管理","法學緒論","人力資源管理","勞工法令","國文","英文","其他"];
+const intervals=[0,1,3,7,14,30,60];
+function boot(){
+  BANK=(window._bank||[]).map(normalize);
+  META=Object.assign({today:"",doneToday:0,sessions:0},window._meta||{});
+  checkDay();
+  if(window._warn)toast(window._warn,3600);
+  setSync("已同步",true);
+  renderAll();
+}
+if(window._cloudReady)boot();
+
+function normalize(q){
+  q.id=q.id||("q"+Date.now()+Math.random().toString(36).slice(2));
+  q.subject=q.subject||"企業管理";
+  q.chapter=q.chapter||"";
+  q.question=q.question||"";
+  q.options=q.options||{A:"",B:"",C:"",D:""};
+  q.answer=(q.answer||"A").toUpperCase();
+  q.explanation=q.explanation||"";
+  q.source=q.source||"";
+  q.note=q.note||"";
+  q.createdAt=q.createdAt||Date.now();
+  q.stats=Object.assign({seen:0,correct:0,wrong:0,streak:0},q.stats||{});
+  q.srs=Object.assign({level:0,due:0,last:0},q.srs||{});
+  return q;
+}
+function today(){return new Date().toLocaleDateString("sv-SE");}
+function checkDay(){if(META.today!==today()){META.today=today();META.doneToday=0;}}
+function due(q){return (q.srs&&q.srs.due||0)<=Date.now();}
+function wrong(q){return (q.stats&&q.stats.wrong||0)>0&&(q.stats.correct||0)<(q.stats.wrong||0)*2+2;}
+function rate(){
+  const seen=BANK.reduce((s,q)=>s+(q.stats.seen||0),0);
+  const ok=BANK.reduce((s,q)=>s+(q.stats.correct||0),0);
+  return seen?Math.round(ok/seen*100):0;
+}
+function save(){
+  window._bank=BANK;window._meta=META;
+  setSync("同步中",false);
+  clearTimeout(SAVE_TMR);
+  SAVE_TMR=setTimeout(async()=>{if(window.cloudSave)await window.cloudSave();setSync("已同步",true);renderStats();},600);
+}
+function setSync(t,ok){document.getElementById("syncText").textContent=t;document.getElementById("dot").style.background=ok?"var(--green)":"var(--gold2)"}
+function toast(msg,dur){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),dur||2200)}
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+function go(tab){
+  TAB=tab;
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("show"));
+  document.getElementById("v-"+tab).classList.add("show");
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("on"));
+  document.getElementById("n-"+tab).classList.add("on");
+  renderAll();
+}
+function renderAll(){renderStats();renderHome();renderPractice();renderAdd();renderBank();renderWrong();}
+function renderStats(){
+  document.getElementById("stTotal").textContent=BANK.length;
+  document.getElementById("stDue").textContent=BANK.filter(due).length;
+  document.getElementById("stWrong").textContent=BANK.filter(wrong).length;
+  document.getElementById("stRate").textContent=rate()+"%";
+}
+function subjectOptions(sel){
+  return subjects.map(s=>`<option value="${esc(s)}"${s===sel?" selected":""}>${esc(s)}</option>`).join("");
+}
+function renderHome(){
+  const recent=BANK.slice().sort((a,b)=>b.createdAt-a.createdAt).slice(0,5);
+  document.getElementById("v-home").innerHTML=`
+    <div class="card">
+      <div class="section" style="margin-top:0">今天建議</div>
+      <div class="hint">先做「今日複習」，再補 5 題錯題。讀書累的時候，只刷錯題本也算有前進。</div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn grow" onclick="startPractice('due')">開始今日複習</button>
+        <button class="btn secondary grow" onclick="startPractice('wrong')">刷錯題</button>
+      </div>
+    </div>
+    <div class="section">最近新增</div>
+    ${recent.length?recent.map(listItem).join(""):`<div class="empty">還沒有題目。先到「新增」貼上或手動輸入第一題。</div>`}
+  `;
+}
+function renderAdd(){
+  document.getElementById("v-add").innerHTML=`
+    <div class="section" style="margin-top:0">拍照一鍵新增</div>
+    <div class="card">
+      <div class="hint">拍下題庫頁或從相簿選照片，AI 會自動抓出題目、選項、答案與解析。第一次使用請先填 OpenAI API Key，Key 只存在這台裝置。</div>
+      <div class="field" style="margin-top:10px">
+        <label>OpenAI API Key</label>
+        <div class="row">
+          <input class="inp grow" id="apiKey" type="password" placeholder="sk-..." value="${esc(KEY)}">
+          <button class="btn secondary small" onclick="saveApiKey()">儲存</button>
+        </div>
+      </div>
+      <div class="row wrap">
+        <button class="btn grow" onclick="document.getElementById('photoCam').click()">拍照</button>
+        <button class="btn secondary grow" onclick="document.getElementById('photoFile').click()">相簿</button>
+      </div>
+      <input id="photoCam" type="file" accept="image/*" capture="environment" style="display:none" onchange="pickPhoto(event)">
+      <input id="photoFile" type="file" accept="image/*" style="display:none" onchange="pickPhoto(event)">
+      <div id="photoBox"></div>
+      <div id="aiBox"></div>
+    </div>
+    <div class="section" style="margin-top:0">手動新增</div>
+    <div class="card">
+      <div class="row">
+        <div class="field grow"><label>科目</label><select class="sel" id="mSubject">${subjectOptions("企業管理")}</select></div>
+        <div class="field grow"><label>章節</label><input class="inp" id="mChapter" placeholder="例如 1-6 企業管理"></div>
+      </div>
+      <div class="field"><label>題目</label><textarea class="inp" id="mQuestion" rows="3" placeholder="貼上題目"></textarea></div>
+      ${["A","B","C","D"].map(k=>`<div class="field"><label>選項 ${k}</label><input class="inp" id="m${k}" placeholder="${k} 選項內容"></div>`).join("")}
+      <div class="row">
+        <div class="field grow"><label>答案</label><select class="sel" id="mAnswer">${["A","B","C","D"].map(k=>`<option>${k}</option>`).join("")}</select></div>
+        <div class="field grow"><label>來源</label><input class="inp" id="mSource" placeholder="例如 103 鐵佐"></div>
+      </div>
+      <div class="field"><label>解析</label><textarea class="inp" id="mExplain" rows="3" placeholder="解析、記憶點、你的筆記"></textarea></div>
+      <button class="btn" onclick="addManual()">加入題庫</button>
+    </div>
+    <div class="section">批次貼上</div>
+    <div class="card">
+      <div class="hint">一題一段，空白行分隔。可用格式：題目、A.、B.、C.、D.、答案、解析、科目、章節、來源。</div>
+      <textarea class="inp" id="batchText" rows="10" style="margin-top:10px" placeholder="科目：企業管理
+章節：1-6
+題目：智慧財產權一般不包括哪一項？
+A. 肖像權
+B. 商標權
+C. 著作權
+D. 商業秘密
+答案：A
+解析：智慧財產權包含著作權、商標權、專利權、商業秘密。"></textarea>
+      <button class="btn" style="margin-top:10px" onclick="addBatch()">批次加入</button>
+    </div>
+    <div class="section">備份</div>
+    <div class="card">
+      <div class="hint">雲端會自動保留最近 20 份快照。題數突然變少時，app 會阻止危險覆蓋；你也可以在這裡手動建立或還原備份。</div>
+      <div class="row wrap">
+        <button class="btn grow" onclick="manualCloudBackup()">建立雲端備份</button>
+        <button class="btn secondary grow" onclick="loadCloudBackups()">查看雲端備份</button>
+      </div>
+      <div id="cloudBackupList" style="margin-top:10px"></div>
+      <div class="row wrap" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="exportJson()">匯出 JSON</button>
+        <button class="btn secondary grow" onclick="document.getElementById('jsonFile').click()">匯入 JSON</button>
+      </div>
+      <input id="jsonFile" type="file" accept="application/json" style="display:none" onchange="importJson(event)">
+    </div>
+  `;
+}
+function getManual(){
+  return normalize({
+    subject:val("mSubject"),chapter:val("mChapter"),question:val("mQuestion"),
+    options:{A:val("mA"),B:val("mB"),C:val("mC"),D:val("mD")},
+    answer:val("mAnswer"),source:val("mSource"),explanation:val("mExplain")
+  });
+}
+function val(id){return document.getElementById(id).value.trim()}
+function saveApiKey(){
+  const k=val("apiKey");
+  if(!k.startsWith("sk-")){toast("API Key 看起來格式不對");return}
+  KEY=k;
+  localStorage.setItem("hrq-openai-key",k);
+  toast("已儲存 API Key");
+}
+function pickPhoto(e){
+  const file=e.target.files&&e.target.files[0];
+  if(!file)return;
+  PHOTO=file;
+  AI_PEND=[];
+  const url=URL.createObjectURL(file);
+  document.getElementById("photoBox").innerHTML=`
+    <img class="photo-preview" src="${url}" alt="題目照片">
+    <div class="row" style="margin-top:10px">
+      <button class="btn grow" onclick="scanPhoto()">AI 辨識並預覽</button>
+      <button class="btn secondary grow" onclick="clearPhoto()">清除</button>
+    </div>
+  `;
+  document.getElementById("aiBox").innerHTML="";
+  e.target.value="";
+}
+function clearPhoto(){
+  PHOTO=null;
+  AI_PEND=[];
+  const p=document.getElementById("photoBox");if(p)p.innerHTML="";
+  const a=document.getElementById("aiBox");if(a)a.innerHTML="";
+}
+function fileToB64(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        let w=img.width,h=img.height;
+        const max=1800;
+        if(w>max||h>max){
+          const scale=Math.min(max/w,max/h);
+          w=Math.round(w*scale);h=Math.round(h*scale);
+        }
+        const canvas=document.createElement("canvas");
+        canvas.width=w;canvas.height=h;
+        canvas.getContext("2d").drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL("image/jpeg",0.92).split(",")[1]);
+      };
+      img.onerror=reject;
+      img.src=e.target.result;
+    };
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
+function aiPrompt(){
+  return `請讀取圖片中的中文選擇題題庫頁，擷取所有看得清楚的四選一題目。
+請只輸出有效 JSON，不要 markdown。格式：
+{"questions":[{"subject":"企業管理或法學緒論或人力資源管理或勞工法令或其他","chapter":"章節或頁面標題，例如 1-6 企業管理題庫","question":"題目文字","options":{"A":"選項A","B":"選項B","C":"選項C","D":"選項D"},"answer":"A","explanation":"解析或記憶點，若圖片有解析請整理；若沒有解析就簡短說明","source":"題目來源，例如 103 鐵佐，若沒有則空字串"}]}
+規則：
+1. 只收錄題目、A-D 選項、答案都能辨識的題目。
+2. 如果頁面右側或解析標出答案，請用它當 answer。
+3. 保留繁體中文。
+4. 不確定答案時不要猜，略過該題。
+5. subject 若判斷不出，使用「其他」。`;
+}
+async function scanPhoto(){
+  if(!PHOTO){toast("請先拍照或選照片");return}
+  if(!KEY){
+    const k=val("apiKey");
+    if(k.startsWith("sk-"))saveApiKey();
+  }
+  if(!KEY){toast("請先填 OpenAI API Key");return}
+  const box=document.getElementById("aiBox");
+  box.innerHTML=`<div class="card" style="margin-top:10px"><div class="hint">AI 正在辨識題目，圖片越清楚越準。</div></div>`;
+  try{
+    const b64=await fileToB64(PHOTO);
+    const res=await fetch("https://api.openai.com/v1/chat/completions",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+KEY},
+      body:JSON.stringify({
+        model:"gpt-4o",
+        max_tokens:5000,
+        response_format:{type:"json_object"},
+        messages:[
+          {role:"system",content:"你是台灣考試選擇題 OCR 整理助手。你只輸出有效 JSON。"},
+          {role:"user",content:[
+            {type:"image_url",image_url:{url:"data:image/jpeg;base64,"+b64}},
+            {type:"text",text:aiPrompt()}
+          ]}
+        ]
+      })
+    });
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      throw new Error((err.error&&err.error.message)||("API error "+res.status));
+    }
+    const data=await res.json();
+    const raw=data.choices[0].message.content;
+    const parsed=JSON.parse(raw);
+    AI_PEND=(parsed.questions||[]).map(normalize).filter(q=>q.question&&q.options.A&&q.options.B&&q.options.C&&q.options.D&&q.answer);
+    renderAiPreview();
+  }catch(err){
+    box.innerHTML=`<div class="card" style="margin-top:10px"><div class="hint">辨識失敗：${esc(err.message)}</div></div>`;
+  }
+}
+function renderAiPreview(){
+  const box=document.getElementById("aiBox");
+  if(!AI_PEND.length){
+    box.innerHTML=`<div class="card" style="margin-top:10px"><div class="hint">沒有抓到完整題目。可以換一張更清楚、文字更正的照片再試。</div></div>`;
+    return;
+  }
+  box.innerHTML=`
+    <div class="section">辨識結果 ${AI_PEND.length} 題</div>
+    <div class="row" style="margin-bottom:10px">
+      <button class="btn grow" onclick="addAiAll()">全部加入題庫</button>
+      <button class="btn secondary grow" onclick="AI_PEND=[];renderAiPreview()">清空結果</button>
+    </div>
+    ${AI_PEND.map((q,i)=>`
+      <div class="ai-result">
+        <div class="list-q">${i+1}. ${esc(q.question)}</div>
+        <div class="hint" style="margin-top:8px">
+          A. ${esc(q.options.A)}<br>
+          B. ${esc(q.options.B)}<br>
+          C. ${esc(q.options.C)}<br>
+          D. ${esc(q.options.D)}
+        </div>
+        <div class="list-meta">
+          <span class="pill">${esc(q.subject)}</span>
+          ${q.chapter?`<span class="pill blue">${esc(q.chapter)}</span>`:""}
+          <span class="pill">答 ${esc(q.answer)}</span>
+          ${q.source?`<span class="pill">${esc(q.source)}</span>`:""}
+        </div>
+        ${q.explanation?`<div class="hint" style="margin-top:8px">${esc(q.explanation)}</div>`:""}
+        <button class="btn secondary small" style="margin-top:10px" onclick="removeAi(${i})">移除這題</button>
+      </div>`).join("")}
+  `;
+}
+function removeAi(i){
+  AI_PEND.splice(i,1);
+  renderAiPreview();
+}
+function addAiAll(){
+  if(!AI_PEND.length){toast("沒有可加入的題目");return}
+  BANK=[...AI_PEND,...BANK];
+  const n=AI_PEND.length;
+  AI_PEND=[];
+  save();
+  clearPhoto();
+  toast("已加入 "+n+" 題");
+  renderAll();
+}
+function addManual(){
+  const q=getManual();
+  if(!q.question||!q.options.A||!q.options.B||!q.options.C||!q.options.D){toast("題目和四個選項都要填");return}
+  BANK.unshift(q);save();toast("已加入題庫");renderAll();
+}
+function addBatch(){
+  const text=val("batchText");
+  const qs=parseBatch(text);
+  if(!qs.length){toast("沒有解析到題目");return}
+  BANK=[...qs,...BANK];save();toast("已加入 "+qs.length+" 題");renderAll();
+}
+function parseBatch(text){
+  return text.split(/\n\s*\n/).map(block=>{
+    const lines=block.split(/\n/).map(x=>x.trim()).filter(Boolean);
+    const q={options:{}};
+    const qLines=[];
+    lines.forEach(line=>{
+      let m;
+      if((m=line.match(/^(科目|subject)[:：]\s*(.+)$/i)))q.subject=m[2];
+      else if((m=line.match(/^(章節|chapter)[:：]\s*(.+)$/i)))q.chapter=m[2];
+      else if((m=line.match(/^(題目|question)[:：]\s*(.+)$/i)))qLines.push(m[2]);
+      else if((m=line.match(/^[\(（]?([ABCD])[\)）.、:：]\s*(.+)$/i)))q.options[m[1].toUpperCase()]=m[2];
+      else if((m=line.match(/^(答案|answer|正解)[:：]\s*([ABCD])/i)))q.answer=m[2].toUpperCase();
+      else if((m=line.match(/^(解析|解釋|explanation)[:：]\s*(.+)$/i)))q.explanation=m[2];
+      else if((m=line.match(/^(來源|source)[:：]\s*(.+)$/i)))q.source=m[2];
+      else qLines.push(line);
+    });
+    q.question=qLines.join("\n");
+    return normalize(q);
+  }).filter(q=>q.question&&q.options.A&&q.options.B&&q.options.C&&q.options.D&&q.answer);
+}
+function renderPractice(){
+  const el=document.getElementById("v-practice");
+  if(!CURRENT){
+    el.innerHTML=`
+      <div class="section" style="margin-top:0">選擇練習範圍</div>
+      <div class="card">
+        <button class="btn" onclick="startPractice('due')">今日複習（${BANK.filter(due).length}）</button>
+        <button class="btn secondary" style="margin-top:9px" onclick="startPractice('wrong')">錯題本（${BANK.filter(wrong).length}）</button>
+        <button class="btn secondary" style="margin-top:9px" onclick="startPractice('all')">全部隨機（${BANK.length}）</button>
+      </div>
+      <div class="section">依科目練習</div>
+      ${subjects.map(s=>`<button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice('subject','${esc(s)}')">${esc(s)}（${BANK.filter(q=>q.subject===s).length}）</button>`).join("")}
+    `;
+    return;
+  }
+  el.innerHTML=questionCard(CURRENT);
+}
+function startPractice(mode,subject){
+  let pool=[];
+  if(mode==="due")pool=BANK.filter(due);
+  if(mode==="wrong")pool=BANK.filter(wrong);
+  if(mode==="all")pool=BANK.slice();
+  if(mode==="subject")pool=BANK.filter(q=>q.subject===subject);
+  QUEUE=shuffle(pool);
+  if(!QUEUE.length){toast("這個範圍目前沒有題目");return}
+  META.sessions=(META.sessions||0)+1;
+  CURRENT=QUEUE.shift();
+  go("practice");
+}
+function questionCard(q){
+  return `
+    <div class="card">
+      <div class="row wrap">
+        <span class="pill">${esc(q.subject)}</span>
+        ${q.chapter?`<span class="pill blue">${esc(q.chapter)}</span>`:""}
+        ${q.source?`<span class="pill">${esc(q.source)}</span>`:""}
+      </div>
+      <div class="qtitle">${esc(q.question)}</div>
+      ${["A","B","C","D"].map(k=>`<button class="opt" id="opt${k}" onclick="answer('${q.id}','${k}')">${k}. ${esc(q.options[k])}</button>`).join("")}
+      <div class="explain" id="explain">${esc(q.explanation||"沒有解析。")}</div>
+      <div class="row" id="nextRow" style="display:none;margin-top:12px">
+        <button class="btn grow" onclick="nextQ()">下一題</button>
+        <button class="btn secondary grow" onclick="CURRENT=null;renderPractice()">結束</button>
+      </div>
+    </div>
+  `;
+}
+function answer(id,k){
+  const q=BANK.find(x=>x.id===id);if(!q)return;
+  const ok=k===q.answer;
+  ["A","B","C","D"].forEach(x=>{
+    const b=document.getElementById("opt"+x);
+    b.disabled=true;
+    if(x===q.answer)b.classList.add("correct");
+    if(x===k&&!ok)b.classList.add("wrong");
+  });
+  q.stats.seen++;q.srs.last=Date.now();
+  if(ok){
+    q.stats.correct++;q.stats.streak++;
+    q.srs.level=Math.min((q.srs.level||0)+1,intervals.length-1);
+  }else{
+    q.stats.wrong++;q.stats.streak=0;q.srs.level=0;
+  }
+  q.srs.due=Date.now()+intervals[q.srs.level]*86400000;
+  META.doneToday=(META.doneToday||0)+1;
+  document.getElementById("explain").style.display="block";
+  document.getElementById("nextRow").style.display="flex";
+  save();
+}
+function nextQ(){
+  CURRENT=QUEUE.length?QUEUE.shift():null;
+  if(!CURRENT)toast("這輪完成");
+  renderPractice();
+}
+function renderBank(){
+  const el=document.getElementById("v-bank");
+  el.innerHTML=`
+    <div class="field" style="margin-top:0"><input class="inp" id="search" placeholder="搜尋題目、解析、來源" oninput="filterBank()"></div>
+    <div id="bankList"></div>
+  `;
+  filterBank();
+}
+function filterBank(){
+  const q=(document.getElementById("search")?.value||"").toLowerCase();
+  const list=BANK.filter(x=>!q||[x.question,x.explanation,x.source,x.subject,x.chapter].join(" ").toLowerCase().includes(q));
+  document.getElementById("bankList").innerHTML=list.length?list.map(listItem).join(""):`<div class="empty">找不到題目。</div>`;
+}
+function renderWrong(){
+  const list=BANK.filter(wrong).sort((a,b)=>(b.stats.wrong||0)-(a.stats.wrong||0));
+  document.getElementById("v-wrong").innerHTML=`
+    <button class="btn" onclick="startPractice('wrong')" ${list.length?"":"disabled"}>開始刷錯題</button>
+    <div class="section">錯題列表</div>
+    ${list.length?list.map(listItem).join(""):`<div class="empty">目前沒有錯題。這裡空空的時候很舒服。</div>`}
+  `;
+}
+function listItem(q){
+  return `
+    <div class="list-item">
+      <div class="list-q">${esc(q.question)}</div>
+      <div class="list-meta">
+        <span class="pill">${esc(q.subject)}</span>
+        ${q.chapter?`<span class="pill blue">${esc(q.chapter)}</span>`:""}
+        <span class="pill ${wrong(q)?"red":""}">錯 ${q.stats.wrong||0} / 對 ${q.stats.correct||0}</span>
+        <span class="pill">答 ${esc(q.answer)}</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="preview('${q.id}')">查看</button>
+        <button class="btn danger" onclick="delQ('${q.id}')">刪除</button>
+      </div>
+    </div>
+  `;
+}
+function preview(id){
+  const q=BANK.find(x=>x.id===id);if(!q)return;
+  CURRENT=q;go("practice");
+}
+function delQ(id){
+  if(!confirm("確定刪除這題？"))return;
+  BANK=BANK.filter(q=>q.id!==id);save();renderAll();
+}
+function shuffle(a){return a.slice().sort(()=>Math.random()-.5)}
+function exportJson(){
+  const blob=new Blob([JSON.stringify({bank:BANK,meta:META},null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="國營人資題庫備份.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importJson(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const d=JSON.parse(reader.result);
+      const arr=Array.isArray(d)?d:d.bank;
+      if(!Array.isArray(arr))throw new Error("格式不正確");
+      BANK=[...arr.map(normalize),...BANK];
+      save();toast("已匯入 "+arr.length+" 題");renderAll();
+    }catch(err){toast("匯入失敗："+err.message)}
+  };
+  reader.readAsText(file);
+  e.target.value="";
+}
+async function manualCloudBackup(){
+  const box=document.getElementById("cloudBackupList");
+  if(box)box.innerHTML=`<div class="hint">正在建立雲端備份...</div>`;
+  try{
+    if(window.cloudForceBackup)await window.cloudForceBackup();
+    toast("雲端備份已建立");
+    await loadCloudBackups();
+  }catch(err){
+    if(box)box.innerHTML=`<div class="hint">建立失敗：${esc(err.message)}</div>`;
+  }
+}
+async function loadCloudBackups(){
+  const box=document.getElementById("cloudBackupList");
+  if(!box)return;
+  box.innerHTML=`<div class="hint">正在讀取雲端備份...</div>`;
+  try{
+    if(!window.cloudListBackups)throw new Error("雲端備份功能尚未載入");
+    const backups=await window.cloudListBackups();
+    if(!backups.length){
+      box.innerHTML=`<div class="hint">目前還沒有雲端備份。新增題目並同步後，或按「建立雲端備份」就會出現。</div>`;
+      return;
+    }
+    box.innerHTML=backups.map(b=>{
+      const time=new Date(b.createdAt||0).toLocaleString("zh-TW",{hour12:false});
+      const label=b.kind==="manual"?"手動":b.kind==="before_restore"?"還原前":"自動";
+      return `
+        <div class="list-item">
+          <div class="list-q">${esc(time)}</div>
+          <div class="list-meta">
+            <span class="pill">${esc(label)}</span>
+            <span class="pill blue">${b.count||0} 題</span>
+          </div>
+          <button class="btn secondary small" style="margin-top:10px" onclick="restoreCloudBackup('${esc(b.id)}')">還原這份</button>
+        </div>
+      `;
+    }).join("");
+  }catch(err){
+    box.innerHTML=`<div class="hint">讀取失敗：${esc(err.message)}</div>`;
+  }
+}
+async function restoreCloudBackup(id){
+  if(!confirm("確定要還原這份雲端備份？目前版本會先自動留一份還原前備份。"))return;
+  try{
+    const restored=await window.cloudRestoreBackup(id);
+    BANK=(restored.bank||[]).map(normalize);
+    META=Object.assign({today:"",doneToday:0,sessions:0},restored.meta||{});
+    checkDay();
+    CURRENT=null;
+    QUEUE=[];
+    toast("已還原雲端備份");
+    renderAll();
+    go("bank");
+  }catch(err){
+    toast("還原失敗："+err.message,3600);
+  }
+}
+</script>
+</body>
+</html>
