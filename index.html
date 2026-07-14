@@ -341,7 +341,12 @@ function normalize(q){
   q.chapter=q.chapter||"";
   q.question=q.question||"";
   q.options=q.options||{A:"",B:"",C:"",D:""};
-  q.answer=(q.answer||"A").toUpperCase();
+  q.answer=(q.answer||"").toUpperCase();
+  if(!["A","B","C","D"].includes(q.answer)){
+    q.answer="A";
+    q.needsReview=true;
+    q.explanation=q.explanation||"答案待確認";
+  }
   q.explanation=q.explanation||"";
   q.source=q.source||"";
   q.note=q.note||"";
@@ -548,8 +553,76 @@ function aiPrompt(){
 1. 只收錄題目、A-D 選項、答案都能辨識的題目。
 2. 如果頁面右側或解析標出答案，請用它當 answer。
 3. 保留繁體中文。
-4. 不確定答案時不要猜，略過該題。
-5. subject 若判斷不出，使用「其他」。`;
+4. 如果題目與 A-D 選項清楚，但答案不確定，仍然收錄，answer 填空字串，explanation 寫「答案待確認」。
+5. subject 若判斷不出，使用「其他」。
+6. 不要把手寫筆記當成題目，但可以把有幫助的手寫記憶點放進 explanation。`;
+}
+function parseJsonLoose(raw){
+  let text=String(raw||"").trim();
+  text=text.replace(/^```json\s*/i,"").replace(/^```\s*/,"").replace(/```$/,"").trim();
+  const first=text.indexOf("{");
+  const last=text.lastIndexOf("}");
+  if(first>=0&&last>first)text=text.slice(first,last+1);
+  return JSON.parse(text);
+}
+function extractResponseText(data){
+  if(data.output_text)return data.output_text;
+  const parts=[];
+  (data.output||[]).forEach(item=>{
+    (item.content||[]).forEach(c=>{
+      if(c.type==="output_text"&&c.text)parts.push(c.text);
+      if(c.type==="text"&&c.text)parts.push(c.text);
+    });
+  });
+  return parts.join("\n");
+}
+async function callVision(b64){
+  const payload={
+    model:"gpt-4o-mini",
+    input:[{
+      role:"user",
+      content:[
+        {type:"input_text",text:aiPrompt()},
+        {type:"input_image",image_url:"data:image/jpeg;base64,"+b64}
+      ]
+    }],
+    text:{format:{type:"json_object"}},
+    max_output_tokens:5000
+  };
+  let res=await fetch("https://api.openai.com/v1/responses",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+KEY},
+    body:JSON.stringify(payload)
+  });
+  if(res.ok){
+    const data=await res.json();
+    return extractResponseText(data);
+  }
+  const err=await res.json().catch(()=>({}));
+  const msg=(err.error&&err.error.message)||("API error "+res.status);
+  if(!String(msg).includes("model")&&!String(msg).includes("Responses"))throw new Error(msg);
+  res=await fetch("https://api.openai.com/v1/chat/completions",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+KEY},
+    body:JSON.stringify({
+      model:"gpt-4o",
+      max_tokens:5000,
+      response_format:{type:"json_object"},
+      messages:[
+        {role:"system",content:"你是台灣考試選擇題 OCR 整理助手。你只輸出有效 JSON。"},
+        {role:"user",content:[
+          {type:"image_url",image_url:{url:"data:image/jpeg;base64,"+b64}},
+          {type:"text",text:aiPrompt()}
+        ]}
+      ]
+    })
+  });
+  if(!res.ok){
+    const err2=await res.json().catch(()=>({}));
+    throw new Error((err2.error&&err2.error.message)||("API error "+res.status));
+  }
+  const data=await res.json();
+  return data.choices[0].message.content;
 }
 async function scanPhoto(){
   if(!PHOTO){toast("請先拍照或選照片");return}
@@ -562,33 +635,17 @@ async function scanPhoto(){
   box.innerHTML=`<div class="card" style="margin-top:10px"><div class="hint">AI 正在辨識題目，圖片越清楚越準。</div></div>`;
   try{
     const b64=await fileToB64(PHOTO);
-    const res=await fetch("https://api.openai.com/v1/chat/completions",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","Authorization":"Bearer "+KEY},
-      body:JSON.stringify({
-        model:"gpt-4o",
-        max_tokens:5000,
-        response_format:{type:"json_object"},
-        messages:[
-          {role:"system",content:"你是台灣考試選擇題 OCR 整理助手。你只輸出有效 JSON。"},
-          {role:"user",content:[
-            {type:"image_url",image_url:{url:"data:image/jpeg;base64,"+b64}},
-            {type:"text",text:aiPrompt()}
-          ]}
-        ]
-      })
-    });
-    if(!res.ok){
-      const err=await res.json().catch(()=>({}));
-      throw new Error((err.error&&err.error.message)||("API error "+res.status));
-    }
-    const data=await res.json();
-    const raw=data.choices[0].message.content;
-    const parsed=JSON.parse(raw);
-    AI_PEND=(parsed.questions||[]).map(normalize).filter(q=>q.question&&q.options.A&&q.options.B&&q.options.C&&q.options.D&&q.answer);
+    const raw=await callVision(b64);
+    const parsed=parseJsonLoose(raw);
+    AI_PEND=(parsed.questions||[]).map(normalize).filter(q=>q.question&&q.options.A&&q.options.B&&q.options.C&&q.options.D);
     renderAiPreview();
   }catch(err){
-    box.innerHTML=`<div class="card" style="margin-top:10px"><div class="hint">辨識失敗：${esc(err.message)}</div></div>`;
+    let tip="請確認 API Key 正確、有額度，且圖片文字清楚。";
+    const msg=err.message||String(err);
+    if(msg.includes("401"))tip="API Key 可能不正確，請重新貼一次。";
+    if(msg.includes("quota")||msg.includes("billing"))tip="OpenAI 帳號可能沒有額度或付款設定。";
+    if(msg.includes("JSON")||msg.includes("Unexpected"))tip="AI 回傳格式不是 JSON，請換一張更清楚的照片再試。";
+    box.innerHTML=`<div class="card" style="margin-top:10px"><div class="hint">辨識失敗：${esc(msg)}<br>${esc(tip)}</div></div>`;
   }
 }
 function renderAiPreview(){
