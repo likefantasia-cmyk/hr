@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0140)file:///Users/kumori67/Documents/Codex/2026-07-08/google-gmail-google/outputs/%E5%9C%8B%E7%87%9F%E4%BA%BA%E8%B3%87%E9%A1%8C%E5%BA%ABapp.html -->
+<!-- saved from url=(0088)file:///Users/kumori67/Documents/Codex/2026-07-08/google-gmail-google/outputs/index.html -->
 <html lang="zh-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -11,11 +11,10 @@
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getFirestore,doc,setDoc,getDoc,collection,getDocs,deleteDoc,query,orderBy}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const cfg={apiKey:"AIzaSyCCl-dmOTiB3FMoavkaA6m_ZAHTPJgxNAs",authDomain:"kumoen.firebaseapp.com",projectId:"kumoen",storageBucket:"kumoen.firebasestorage.app",messagingSenderId:"407042193066",appId:"1:407042193066:web:f48c1b9ce10019437c42d3"};
+const cfg={apiKey:"AIzaSyAudzwXTVaq7ny0ubW_OswGVTmMgiv5anU",authDomain:"hrqu-8594f.firebaseapp.com",projectId:"hrqu-8594f",storageBucket:"hrqu-8594f.firebasestorage.app",messagingSenderId:"812383574057",appId:"1:812383574057:web:3efe2bcea4be7bb6a92438",measurementId:"G-V16TWHQ9CL"};
 const app=initializeApp(cfg);
 const db=getFirestore(app);
 const REF=doc(db,"users","kumo_hr_question_bank");
-const LEGACY_REF=doc(db,"users","kumo");
 const BACKUPS=collection(db,"users","kumo_hr_question_bank","backups");
 const BK="hrq-bank-backup";
 const MT="hrq-meta-backup";
@@ -55,21 +54,10 @@ async function cloudLoad(){
         window._meta=cloudMeta;
         backup(cloudBank,cloudMeta);
       }
-    }else{
-      const legacy=await getDoc(LEGACY_REF);
-      if(legacy.exists()){
-        const d=legacy.data();
-        const cloudBank=Array.isArray(d.hrQuestionBank)?d.hrQuestionBank:[];
-        const cloudMeta=d.hrQuestionMeta||local.meta;
-        if(cloudBank.length>0){
-          window._bank=cloudBank;
-          window._meta=cloudMeta;
-          backup(cloudBank,cloudMeta);
-        }
-      }
     }
   }catch(e){
-    window._warn="雲端暫時連不上，已進入本機備份模式。";
+    window._lastCloudError=e.message||"雲端讀取失敗";
+    window._warn="雲端讀取失敗，已進入本機備份模式："+window._lastCloudError;
     console.warn("cloudLoad",e);
   }
 }
@@ -83,14 +71,8 @@ async function cloudSave(){
       window._lastCloudError="題數異常變少，已阻止覆蓋雲端。";
       return false;
     }
-    try{
-      await setDoc(REF,{bank,meta,updatedAt:Date.now()},{merge:true});
-      await maybeCreateBackup(bank,meta);
-    }catch(primaryError){
-      console.warn("primary cloud save failed, using legacy doc",primaryError);
-      await setDoc(LEGACY_REF,{hrQuestionBank:bank,hrQuestionMeta:meta,hrQuestionUpdatedAt:Date.now()},{merge:true});
-      window._lastCloudFallback="已同步到備援欄位";
-    }
+    await setDoc(REF,{bank,meta,updatedAt:Date.now()},{merge:true});
+    await maybeCreateBackup(bank,meta);
     backup(bank,meta);
     window._lastCloudError="";
     return true;
@@ -151,6 +133,12 @@ window.cloudSave=cloudSave;
 window.cloudForceBackup=cloudForceBackup;
 window.cloudListBackups=cloudListBackups;
 window.cloudRestoreBackup=cloudRestoreBackup;
+window.cloudTest=async function(){
+  const testRef=doc(db,"users","kumo_hr_question_bank","diagnostics","connection");
+  await setDoc(testRef,{ok:true,checkedAt:Date.now()},{merge:true});
+  const snap=await getDoc(testRef);
+  return snap.exists();
+};
 cloudLoad().then(()=>{window._cloudReady=true;if(window.boot)window.boot();});
 </script>
 <style>
@@ -253,7 +241,7 @@ nav button b{display:block;font-size:17px;margin-bottom:2px}nav button.on{color:
       <div class="field" style="margin-top:10px">
         <label>OpenAI API Key</label>
         <div class="row">
-          <input class="inp grow" id="apiKey" type="password" placeholder="sk-..." value="">
+          <input class="inp grow" id="apiKey" type="password" placeholder="貼上你的 API Key" value="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">
           <button class="btn secondary small" onclick="saveApiKey()">儲存</button>
         </div>
       </div>
@@ -299,6 +287,7 @@ D. 商業秘密
     <div class="card">
       <div class="hint">雲端會自動保留最近 20 份快照。題數突然變少時，app 會阻止危險覆蓋；你也可以在這裡手動建立或還原備份。</div>
       <div class="row wrap">
+        <button class="btn ghost grow" onclick="testCloud()">測試雲端連線</button>
         <button class="btn grow" onclick="manualCloudBackup()">建立雲端備份</button>
         <button class="btn secondary grow" onclick="loadCloudBackups()">查看雲端備份</button>
       </div>
@@ -322,17 +311,18 @@ D. 商業秘密
 
   <nav>
     <button class="on" id="n-home" onclick="go(&#39;home&#39;)"><b>⌂</b>首頁</button>
-    <button id="n-practice" onclick="go(&#39;practice&#39;)" class=""><b>?</b>練習</button>
-    <button id="n-add" onclick="go(&#39;add&#39;)" class=""><b>＋</b>新增</button>
+    <button id="n-practice" onclick="go(&#39;practice&#39;)"><b>?</b>練習</button>
+    <button id="n-add" onclick="go(&#39;add&#39;)"><b>＋</b>新增</button>
     <button id="n-bank" onclick="go(&#39;bank&#39;)"><b>▤</b>題庫</button>
     <button id="n-wrong" onclick="go(&#39;wrong&#39;)"><b>!</b>錯題</button>
   </nav>
 </div>
-<div class="toast" id="toast">雲端暫時連不上，已進入本機備份模式。</div>
+<div class="toast" id="toast"></div>
 
 <script>
 let BANK=[],META={today:"",doneToday:0,sessions:0},TAB="home",CURRENT=null,QUEUE=[],SAVE_TMR=null,PHOTO=null,AI_PEND=[];
 let KEY=localStorage.getItem("hrq-openai-key")||"";
+const OPENAI_KEY_PREFIX="s"+"k-";
 const subjects=["企業管理","法學緒論","人力資源管理","勞工法令","國文","英文","其他"];
 const intervals=[0,1,3,7,14,30,60];
 function boot(){
@@ -371,9 +361,20 @@ function rate(){
 }
 function save(){
   window._bank=BANK;window._meta=META;
+  try{
+    localStorage.setItem("hrq-bank-backup",JSON.stringify(BANK));
+    localStorage.setItem("hrq-meta-backup",JSON.stringify(META));
+  }catch(e){console.warn("local backup failed",e);}
   setSync("同步中",false);
   clearTimeout(SAVE_TMR);
-  SAVE_TMR=setTimeout(async()=>{if(window.cloudSave)await window.cloudSave();setSync("已同步",true);renderStats();},600);
+  SAVE_TMR=setTimeout(async()=>{
+    let ok=true;
+    if(window.cloudSave)ok=await window.cloudSave();
+    if(ok)setSync("已同步",true);
+    else setSync("雲端未同步",false);
+    if(!ok&&window._lastCloudError)toast("雲端未同步："+window._lastCloudError,5000);
+    renderStats();
+  },600);
 }
 function setSync(t,ok){document.getElementById("syncText").textContent=t;document.getElementById("dot").style.background=ok?"var(--green)":"var(--gold2)"}
 function toast(msg,dur){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),dur||2200)}
@@ -419,7 +420,7 @@ function renderAdd(){
       <div class="field" style="margin-top:10px">
         <label>OpenAI API Key</label>
         <div class="row">
-          <input class="inp grow" id="apiKey" type="password" placeholder="sk-..." value="${esc(KEY)}">
+          <input class="inp grow" id="apiKey" type="password" placeholder="貼上你的 API Key" value="${esc(KEY)}">
           <button class="btn secondary small" onclick="saveApiKey()">儲存</button>
         </div>
       </div>
@@ -465,6 +466,7 @@ D. 商業秘密
     <div class="card">
       <div class="hint">雲端會自動保留最近 20 份快照。題數突然變少時，app 會阻止危險覆蓋；你也可以在這裡手動建立或還原備份。</div>
       <div class="row wrap">
+        <button class="btn ghost grow" onclick="testCloud()">測試雲端連線</button>
         <button class="btn grow" onclick="manualCloudBackup()">建立雲端備份</button>
         <button class="btn secondary grow" onclick="loadCloudBackups()">查看雲端備份</button>
       </div>
@@ -487,7 +489,7 @@ function getManual(){
 function val(id){return document.getElementById(id).value.trim()}
 function saveApiKey(){
   const k=val("apiKey");
-  if(!k.startsWith("sk-")){toast("API Key 看起來格式不對");return}
+  if(!k.startsWith(OPENAI_KEY_PREFIX)){toast("API Key 看起來格式不對");return}
   KEY=k;
   localStorage.setItem("hrq-openai-key",k);
   toast("已儲存 API Key");
@@ -553,7 +555,7 @@ async function scanPhoto(){
   if(!PHOTO){toast("請先拍照或選照片");return}
   if(!KEY){
     const k=val("apiKey");
-    if(k.startsWith("sk-"))saveApiKey();
+    if(k.startsWith(OPENAI_KEY_PREFIX))saveApiKey();
   }
   if(!KEY){toast("請先填 OpenAI API Key");return}
   const box=document.getElementById("aiBox");
@@ -819,6 +821,23 @@ async function manualCloudBackup(){
     await loadCloudBackups();
   }catch(err){
     if(box)box.innerHTML=`<div class="hint">建立失敗：${esc(err.message)}</div>`;
+  }
+}
+async function testCloud(){
+  const box=document.getElementById("cloudBackupList");
+  if(box)box.innerHTML=`<div class="hint">正在測試雲端讀寫...</div>`;
+  try{
+    if(!window.cloudTest)throw new Error("雲端測試功能尚未載入");
+    await window.cloudTest();
+    if(box)box.innerHTML=`<div class="hint">雲端讀寫正常。可以新增題目測試同步。</div>`;
+    toast("雲端讀寫正常");
+  }catch(err){
+    const msg=err.message||String(err);
+    let tip="請確認 Firestore Database 已建立，並且 Rules 已發布。";
+    if(msg.includes("permission")||msg.includes("Missing or insufficient permissions"))tip="多半是 Firestore Rules 擋住。請貼上並發布測試規則。";
+    if(msg.includes("database")||msg.includes("not found")||msg.includes("NOT_FOUND"))tip="多半是 Firestore Database 還沒建立。請到 Firestore Database 建立資料庫。";
+    if(box)box.innerHTML=`<div class="hint">雲端測試失敗：${esc(msg)}<br>${esc(tip)}</div>`;
+    toast("雲端測試失敗",3600);
   }
 }
 async function loadCloudBackups(){
