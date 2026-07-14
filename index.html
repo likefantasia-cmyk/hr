@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0140)file:///Users/kumori67/Documents/Codex/2026-07-08/google-gmail-google/outputs/%E5%9C%8B%E7%87%9F%E4%BA%BA%E8%B3%87%E9%A1%8C%E5%BA%ABapp.html -->
+<html lang="zh-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="國營題庫">
@@ -215,7 +215,7 @@ nav button b{display:block;font-size:17px;margin-bottom:2px}nav button.on{color:
   <div class="top">
     <div class="title">國營<span>人資題庫</span></div>
     <div class="sub">選擇題、錯題本、今日複習。資料使用 Firebase 雲端同步，並保留本機備份。</div>
-    <div class="sync"><span class="dot" id="dot"></span><span id="syncText">載入中</span></div>
+    <div class="sync"><span class="dot" id="dot" style="background: var(--green);"></span><span id="syncText">已同步</span></div>
   </div>
   <div class="stats">
     <div class="stat"><div class="num" id="stTotal">0</div><div class="lab">總題數</div></div>
@@ -224,21 +224,111 @@ nav button b{display:block;font-size:17px;margin-bottom:2px}nav button.on{color:
     <div class="stat"><div class="num" id="stRate">0%</div><div class="lab">正確率</div></div>
   </div>
 
-  <section class="view show" id="v-home"></section>
-  <section class="view" id="v-practice"></section>
-  <section class="view" id="v-add"></section>
-  <section class="view" id="v-bank"></section>
-  <section class="view" id="v-wrong"></section>
+  <section class="view show" id="v-home">
+    <div class="card">
+      <div class="section" style="margin-top:0">今天建議</div>
+      <div class="hint">先做「今日複習」，再補 5 題錯題。讀書累的時候，只刷錯題本也算有前進。</div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn grow" onclick="startPractice(&#39;due&#39;)">開始今日複習</button>
+        <button class="btn secondary grow" onclick="startPractice(&#39;wrong&#39;)">刷錯題</button>
+      </div>
+    </div>
+    <div class="section">最近新增</div>
+    <div class="empty">還沒有題目。先到「新增」貼上或手動輸入第一題。</div>
+  </section>
+  <section class="view" id="v-practice">
+      <div class="section" style="margin-top:0">選擇練習範圍</div>
+      <div class="card">
+        <button class="btn" onclick="startPractice(&#39;due&#39;)">今日複習（0）</button>
+        <button class="btn secondary" style="margin-top:9px" onclick="startPractice(&#39;wrong&#39;)">錯題本（0）</button>
+        <button class="btn secondary" style="margin-top:9px" onclick="startPractice(&#39;all&#39;)">全部隨機（0）</button>
+      </div>
+      <div class="section">依科目練習</div>
+      <button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;企業管理&#39;)">企業管理（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;法學緒論&#39;)">法學緒論（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;人力資源管理&#39;)">人力資源管理（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;勞工法令&#39;)">勞工法令（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;國文&#39;)">國文（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;英文&#39;)">英文（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;其他&#39;)">其他（0）</button>
+    </section>
+  <section class="view" id="v-add">
+    <div class="section" style="margin-top:0">拍照一鍵新增</div>
+    <div class="card">
+      <div class="hint">拍下題庫頁或從相簿選照片，AI 會自動抓出題目、選項、答案與解析。第一次使用請先填 OpenAI API Key，Key 只存在這台裝置。</div>
+      <div class="field" style="margin-top:10px">
+        <label>OpenAI API Key</label>
+        <div class="row">
+          <input class="inp grow" id="apiKey" type="password" placeholder="sk-..." value="">
+          <button class="btn secondary small" onclick="saveApiKey()">儲存</button>
+        </div>
+      </div>
+      <div class="row wrap">
+        <button class="btn grow" onclick="document.getElementById(&#39;photoCam&#39;).click()">拍照</button>
+        <button class="btn secondary grow" onclick="document.getElementById(&#39;photoFile&#39;).click()">相簿</button>
+      </div>
+      <input id="photoCam" type="file" accept="image/*" capture="environment" style="display:none" onchange="pickPhoto(event)">
+      <input id="photoFile" type="file" accept="image/*" style="display:none" onchange="pickPhoto(event)">
+      <div id="photoBox"></div>
+      <div id="aiBox"></div>
+    </div>
+    <div class="section" style="margin-top:0">手動新增</div>
+    <div class="card">
+      <div class="row">
+        <div class="field grow"><label>科目</label><select class="sel" id="mSubject"><option value="企業管理" selected="">企業管理</option><option value="法學緒論">法學緒論</option><option value="人力資源管理">人力資源管理</option><option value="勞工法令">勞工法令</option><option value="國文">國文</option><option value="英文">英文</option><option value="其他">其他</option></select></div>
+        <div class="field grow"><label>章節</label><input class="inp" id="mChapter" placeholder="例如 1-6 企業管理"></div>
+      </div>
+      <div class="field"><label>題目</label><textarea class="inp" id="mQuestion" rows="3" placeholder="貼上題目"></textarea></div>
+      <div class="field"><label>選項 A</label><input class="inp" id="mA" placeholder="A 選項內容"></div><div class="field"><label>選項 B</label><input class="inp" id="mB" placeholder="B 選項內容"></div><div class="field"><label>選項 C</label><input class="inp" id="mC" placeholder="C 選項內容"></div><div class="field"><label>選項 D</label><input class="inp" id="mD" placeholder="D 選項內容"></div>
+      <div class="row">
+        <div class="field grow"><label>答案</label><select class="sel" id="mAnswer"><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
+        <div class="field grow"><label>來源</label><input class="inp" id="mSource" placeholder="例如 103 鐵佐"></div>
+      </div>
+      <div class="field"><label>解析</label><textarea class="inp" id="mExplain" rows="3" placeholder="解析、記憶點、你的筆記"></textarea></div>
+      <button class="btn" onclick="addManual()">加入題庫</button>
+    </div>
+    <div class="section">批次貼上</div>
+    <div class="card">
+      <div class="hint">一題一段，空白行分隔。可用格式：題目、A.、B.、C.、D.、答案、解析、科目、章節、來源。</div>
+      <textarea class="inp" id="batchText" rows="10" style="margin-top:10px" placeholder="科目：企業管理
+章節：1-6
+題目：智慧財產權一般不包括哪一項？
+A. 肖像權
+B. 商標權
+C. 著作權
+D. 商業秘密
+答案：A
+解析：智慧財產權包含著作權、商標權、專利權、商業秘密。"></textarea>
+      <button class="btn" style="margin-top:10px" onclick="addBatch()">批次加入</button>
+    </div>
+    <div class="section">備份</div>
+    <div class="card">
+      <div class="hint">雲端會自動保留最近 20 份快照。題數突然變少時，app 會阻止危險覆蓋；你也可以在這裡手動建立或還原備份。</div>
+      <div class="row wrap">
+        <button class="btn grow" onclick="manualCloudBackup()">建立雲端備份</button>
+        <button class="btn secondary grow" onclick="loadCloudBackups()">查看雲端備份</button>
+      </div>
+      <div id="cloudBackupList" style="margin-top:10px"></div>
+      <div class="row wrap" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="exportJson()">匯出 JSON</button>
+        <button class="btn secondary grow" onclick="document.getElementById(&#39;jsonFile&#39;).click()">匯入 JSON</button>
+      </div>
+      <input id="jsonFile" type="file" accept="application/json" style="display:none" onchange="importJson(event)">
+    </div>
+  </section>
+  <section class="view" id="v-bank">
+    <div class="field" style="margin-top:0"><input class="inp" id="search" placeholder="搜尋題目、解析、來源" oninput="filterBank()"></div>
+    <div id="bankList"><div class="empty">找不到題目。</div></div>
+  </section>
+  <section class="view" id="v-wrong">
+    <button class="btn" onclick="startPractice(&#39;wrong&#39;)" disabled="">開始刷錯題</button>
+    <div class="section">錯題列表</div>
+    <div class="empty">目前沒有錯題。這裡空空的時候很舒服。</div>
+  </section>
 
   <nav>
-    <button class="on" id="n-home" onclick="go('home')"><b>⌂</b>首頁</button>
-    <button id="n-practice" onclick="go('practice')"><b>?</b>練習</button>
-    <button id="n-add" onclick="go('add')"><b>＋</b>新增</button>
-    <button id="n-bank" onclick="go('bank')"><b>▤</b>題庫</button>
-    <button id="n-wrong" onclick="go('wrong')"><b>!</b>錯題</button>
+    <button class="on" id="n-home" onclick="go(&#39;home&#39;)"><b>⌂</b>首頁</button>
+    <button id="n-practice" onclick="go(&#39;practice&#39;)" class=""><b>?</b>練習</button>
+    <button id="n-add" onclick="go(&#39;add&#39;)" class=""><b>＋</b>新增</button>
+    <button id="n-bank" onclick="go(&#39;bank&#39;)"><b>▤</b>題庫</button>
+    <button id="n-wrong" onclick="go(&#39;wrong&#39;)"><b>!</b>錯題</button>
   </nav>
 </div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast">雲端暫時連不上，已進入本機備份模式。</div>
 
 <script>
 let BANK=[],META={today:"",doneToday:0,sessions:0},TAB="home",CURRENT=null,QUEUE=[],SAVE_TMR=null,PHOTO=null,AI_PEND=[];
@@ -777,5 +867,6 @@ async function restoreCloudBackup(id){
   }
 }
 </script>
-</body>
-</html>
+
+
+</body></html>
