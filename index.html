@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0088)file:///Users/kumori67/Documents/Codex/2026-07-08/google-gmail-google/outputs/index.html -->
-<html lang="zh-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="國營題庫">
@@ -203,7 +203,7 @@ nav button b{display:block;font-size:17px;margin-bottom:2px}nav button.on{color:
   <div class="top">
     <div class="title">國營<span>人資題庫</span></div>
     <div class="sub">選擇題、錯題本、今日複習。資料使用 Firebase 雲端同步，並保留本機備份。</div>
-    <div class="sync"><span class="dot" id="dot" style="background: var(--green);"></span><span id="syncText">已同步</span></div>
+    <div class="sync"><span class="dot" id="dot"></span><span id="syncText">載入中</span></div>
   </div>
   <div class="stats">
     <div class="stat"><div class="num" id="stTotal">0</div><div class="lab">總題數</div></div>
@@ -212,109 +212,18 @@ nav button b{display:block;font-size:17px;margin-bottom:2px}nav button.on{color:
     <div class="stat"><div class="num" id="stRate">0%</div><div class="lab">正確率</div></div>
   </div>
 
-  <section class="view show" id="v-home">
-    <div class="card">
-      <div class="section" style="margin-top:0">今天建議</div>
-      <div class="hint">先做「今日複習」，再補 5 題錯題。讀書累的時候，只刷錯題本也算有前進。</div>
-      <div class="row" style="margin-top:12px">
-        <button class="btn grow" onclick="startPractice(&#39;due&#39;)">開始今日複習</button>
-        <button class="btn secondary grow" onclick="startPractice(&#39;wrong&#39;)">刷錯題</button>
-      </div>
-    </div>
-    <div class="section">最近新增</div>
-    <div class="empty">還沒有題目。先到「新增」貼上或手動輸入第一題。</div>
-  </section>
-  <section class="view" id="v-practice">
-      <div class="section" style="margin-top:0">選擇練習範圍</div>
-      <div class="card">
-        <button class="btn" onclick="startPractice(&#39;due&#39;)">今日複習（0）</button>
-        <button class="btn secondary" style="margin-top:9px" onclick="startPractice(&#39;wrong&#39;)">錯題本（0）</button>
-        <button class="btn secondary" style="margin-top:9px" onclick="startPractice(&#39;all&#39;)">全部隨機（0）</button>
-      </div>
-      <div class="section">依科目練習</div>
-      <button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;企業管理&#39;)">企業管理（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;法學緒論&#39;)">法學緒論（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;人力資源管理&#39;)">人力資源管理（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;勞工法令&#39;)">勞工法令（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;國文&#39;)">國文（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;英文&#39;)">英文（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;其他&#39;)">其他（0）</button>
-    </section>
-  <section class="view" id="v-add">
-    <div class="section" style="margin-top:0">拍照一鍵新增</div>
-    <div class="card">
-      <div class="hint">拍下題庫頁或從相簿選照片，AI 會自動抓出題目、選項、答案與解析。第一次使用請先填 OpenAI API Key，Key 只存在這台裝置。</div>
-      <div class="field" style="margin-top:10px">
-        <label>OpenAI API Key</label>
-        <div class="row">
-          <input class="inp grow" id="apiKey" type="password" placeholder="貼上你的 API Key" value="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">
-          <button class="btn secondary small" onclick="saveApiKey()">儲存</button>
-        </div>
-      </div>
-      <div class="row wrap">
-        <button class="btn grow" onclick="document.getElementById(&#39;photoCam&#39;).click()">拍照</button>
-        <button class="btn secondary grow" onclick="document.getElementById(&#39;photoFile&#39;).click()">相簿</button>
-      </div>
-      <input id="photoCam" type="file" accept="image/*" capture="environment" style="display:none" onchange="pickPhoto(event)">
-      <input id="photoFile" type="file" accept="image/*" style="display:none" onchange="pickPhoto(event)">
-      <div id="photoBox"></div>
-      <div id="aiBox"></div>
-    </div>
-    <div class="section" style="margin-top:0">手動新增</div>
-    <div class="card">
-      <div class="row">
-        <div class="field grow"><label>科目</label><select class="sel" id="mSubject"><option value="企業管理" selected="">企業管理</option><option value="法學緒論">法學緒論</option><option value="人力資源管理">人力資源管理</option><option value="勞工法令">勞工法令</option><option value="國文">國文</option><option value="英文">英文</option><option value="其他">其他</option></select></div>
-        <div class="field grow"><label>章節</label><input class="inp" id="mChapter" placeholder="例如 1-6 企業管理"></div>
-      </div>
-      <div class="field"><label>題目</label><textarea class="inp" id="mQuestion" rows="3" placeholder="貼上題目"></textarea></div>
-      <div class="field"><label>選項 A</label><input class="inp" id="mA" placeholder="A 選項內容"></div><div class="field"><label>選項 B</label><input class="inp" id="mB" placeholder="B 選項內容"></div><div class="field"><label>選項 C</label><input class="inp" id="mC" placeholder="C 選項內容"></div><div class="field"><label>選項 D</label><input class="inp" id="mD" placeholder="D 選項內容"></div>
-      <div class="row">
-        <div class="field grow"><label>答案</label><select class="sel" id="mAnswer"><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
-        <div class="field grow"><label>來源</label><input class="inp" id="mSource" placeholder="例如 103 鐵佐"></div>
-      </div>
-      <div class="field"><label>解析</label><textarea class="inp" id="mExplain" rows="3" placeholder="解析、記憶點、你的筆記"></textarea></div>
-      <button class="btn" onclick="addManual()">加入題庫</button>
-    </div>
-    <div class="section">批次貼上</div>
-    <div class="card">
-      <div class="hint">一題一段，空白行分隔。可用格式：題目、A.、B.、C.、D.、答案、解析、科目、章節、來源。</div>
-      <textarea class="inp" id="batchText" rows="10" style="margin-top:10px" placeholder="科目：企業管理
-章節：1-6
-題目：智慧財產權一般不包括哪一項？
-A. 肖像權
-B. 商標權
-C. 著作權
-D. 商業秘密
-答案：A
-解析：智慧財產權包含著作權、商標權、專利權、商業秘密。"></textarea>
-      <button class="btn" style="margin-top:10px" onclick="addBatch()">批次加入</button>
-    </div>
-    <div class="section">備份</div>
-    <div class="card">
-      <div class="hint">雲端會自動保留最近 20 份快照。題數突然變少時，app 會阻止危險覆蓋；你也可以在這裡手動建立或還原備份。</div>
-      <div class="row wrap">
-        <button class="btn ghost grow" onclick="testCloud()">測試雲端連線</button>
-        <button class="btn grow" onclick="manualCloudBackup()">建立雲端備份</button>
-        <button class="btn secondary grow" onclick="loadCloudBackups()">查看雲端備份</button>
-      </div>
-      <div id="cloudBackupList" style="margin-top:10px"></div>
-      <div class="row wrap" style="margin-top:10px">
-        <button class="btn secondary grow" onclick="exportJson()">匯出 JSON</button>
-        <button class="btn secondary grow" onclick="document.getElementById(&#39;jsonFile&#39;).click()">匯入 JSON</button>
-      </div>
-      <input id="jsonFile" type="file" accept="application/json" style="display:none" onchange="importJson(event)">
-    </div>
-  </section>
-  <section class="view" id="v-bank">
-    <div class="field" style="margin-top:0"><input class="inp" id="search" placeholder="搜尋題目、解析、來源" oninput="filterBank()"></div>
-    <div id="bankList"><div class="empty">找不到題目。</div></div>
-  </section>
-  <section class="view" id="v-wrong">
-    <button class="btn" onclick="startPractice(&#39;wrong&#39;)" disabled="">開始刷錯題</button>
-    <div class="section">錯題列表</div>
-    <div class="empty">目前沒有錯題。這裡空空的時候很舒服。</div>
-  </section>
+  <section class="view show" id="v-home"></section>
+  <section class="view" id="v-practice"></section>
+  <section class="view" id="v-add"></section>
+  <section class="view" id="v-bank"></section>
+  <section class="view" id="v-wrong"></section>
 
   <nav>
-    <button class="on" id="n-home" onclick="go(&#39;home&#39;)"><b>⌂</b>首頁</button>
-    <button id="n-practice" onclick="go(&#39;practice&#39;)"><b>?</b>練習</button>
-    <button id="n-add" onclick="go(&#39;add&#39;)"><b>＋</b>新增</button>
-    <button id="n-bank" onclick="go(&#39;bank&#39;)"><b>▤</b>題庫</button>
-    <button id="n-wrong" onclick="go(&#39;wrong&#39;)"><b>!</b>錯題</button>
+    <button class="on" id="n-home" onclick="go('home')"><b>⌂</b>首頁</button>
+    <button id="n-practice" onclick="go('practice')"><b>?</b>練習</button>
+    <button id="n-add" onclick="go('add')"><b>＋</b>新增</button>
+    <button id="n-bank" onclick="go('bank')"><b>▤</b>題庫</button>
+    <button id="n-wrong" onclick="go('wrong')"><b>!</b>錯題</button>
   </nav>
 </div>
 <div class="toast" id="toast"></div>
@@ -546,16 +455,20 @@ function fileToB64(file){
   });
 }
 function aiPrompt(){
-  return `請讀取圖片中的中文選擇題題庫頁，擷取所有看得清楚的四選一題目。
+  return `這是一張台灣考試題庫或講義頁照片。請像 OCR 一樣仔細讀取印刷文字，擷取所有看得清楚的四選一選擇題。
 請只輸出有效 JSON，不要 markdown。格式：
 {"questions":[{"subject":"企業管理或法學緒論或人力資源管理或勞工法令或其他","chapter":"章節或頁面標題，例如 1-6 企業管理題庫","question":"題目文字","options":{"A":"選項A","B":"選項B","C":"選項C","D":"選項D"},"answer":"A","explanation":"解析或記憶點，若圖片有解析請整理；若沒有解析就簡短說明","source":"題目來源，例如 103 鐵佐，若沒有則空字串"}]}
 規則：
-1. 只收錄題目、A-D 選項、答案都能辨識的題目。
-2. 如果頁面右側或解析標出答案，請用它當 answer。
-3. 保留繁體中文。
-4. 如果題目與 A-D 選項清楚，但答案不確定，仍然收錄，answer 填空字串，explanation 寫「答案待確認」。
-5. subject 若判斷不出，使用「其他」。
-6. 不要把手寫筆記當成題目，但可以把有幫助的手寫記憶點放進 explanation。`;
+1. 儘量擷取同一張照片中所有完整題目，不要只抓第一題。
+2. 題目通常以數字編號開始，選項可能是 (A)(B)(C)(D)、A. B. C. D. 或直排排列。
+3. 如果頁面右側、題目旁、解析區或括號標出答案，請用它當 answer。
+4. 如果有「解析」、「記憶點」、「POINT」等內容，請整理到 explanation。
+5. 保留繁體中文。
+6. 如果題目與 A-D 選項清楚，但答案不確定，仍然收錄，answer 填空字串，explanation 寫「答案待確認」。
+7. subject 若判斷不出，使用「其他」。
+8. 不要把手寫筆記當成題目，但可以把有幫助的手寫記憶點放進 explanation。
+9. 若題目跨行，請合併成完整題幹。
+`;
 }
 function parseJsonLoose(raw){
   let text=String(raw||"").trim();
@@ -577,8 +490,30 @@ function extractResponseText(data){
   return parts.join("\n");
 }
 async function callVision(b64){
+  let res=await fetch("https://api.openai.com/v1/chat/completions",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+KEY},
+    body:JSON.stringify({
+      model:"gpt-4o",
+      max_tokens:6000,
+      response_format:{type:"json_object"},
+      messages:[
+        {role:"system",content:"你是台灣考試選擇題 OCR 整理助手，擅長讀取課本題庫、印刷字、手寫註記與右側答案。你只輸出有效 JSON。"},
+        {role:"user",content:[
+          {type:"image_url",image_url:{url:"data:image/jpeg;base64,"+b64}},
+          {type:"text",text:aiPrompt()}
+        ]}
+      ]
+    })
+  });
+  if(res.ok){
+    const data=await res.json();
+    return data.choices[0].message.content;
+  }
+  const err=await res.json().catch(()=>({}));
+  const firstMsg=(err.error&&err.error.message)||("API error "+res.status);
   const payload={
-    model:"gpt-4o-mini",
+    model:"gpt-4o",
     input:[{
       role:"user",
       content:[
@@ -587,9 +522,9 @@ async function callVision(b64){
       ]
     }],
     text:{format:{type:"json_object"}},
-    max_output_tokens:5000
+    max_output_tokens:6000
   };
-  let res=await fetch("https://api.openai.com/v1/responses",{
+  res=await fetch("https://api.openai.com/v1/responses",{
     method:"POST",
     headers:{"Content-Type":"application/json","Authorization":"Bearer "+KEY},
     body:JSON.stringify(payload)
@@ -598,31 +533,8 @@ async function callVision(b64){
     const data=await res.json();
     return extractResponseText(data);
   }
-  const err=await res.json().catch(()=>({}));
-  const msg=(err.error&&err.error.message)||("API error "+res.status);
-  if(!String(msg).includes("model")&&!String(msg).includes("Responses"))throw new Error(msg);
-  res=await fetch("https://api.openai.com/v1/chat/completions",{
-    method:"POST",
-    headers:{"Content-Type":"application/json","Authorization":"Bearer "+KEY},
-    body:JSON.stringify({
-      model:"gpt-4o",
-      max_tokens:5000,
-      response_format:{type:"json_object"},
-      messages:[
-        {role:"system",content:"你是台灣考試選擇題 OCR 整理助手。你只輸出有效 JSON。"},
-        {role:"user",content:[
-          {type:"image_url",image_url:{url:"data:image/jpeg;base64,"+b64}},
-          {type:"text",text:aiPrompt()}
-        ]}
-      ]
-    })
-  });
-  if(!res.ok){
-    const err2=await res.json().catch(()=>({}));
-    throw new Error((err2.error&&err2.error.message)||("API error "+res.status));
-  }
-  const data=await res.json();
-  return data.choices[0].message.content;
+  const err2=await res.json().catch(()=>({}));
+  throw new Error((err2.error&&err2.error.message)||firstMsg);
 }
 async function scanPhoto(){
   if(!PHOTO){toast("請先拍照或選照片");return}
@@ -943,6 +855,5 @@ async function restoreCloudBackup(id){
   }
 }
 </script>
-
-
-</body></html>
+</body>
+</html>
