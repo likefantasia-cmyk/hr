@@ -189,6 +189,7 @@ textarea{resize:vertical}
 .option-result{float:right;font-size:12px;font-weight:800;margin-left:10px}.option-result.ok{color:#7ee5a3}.option-result.bad{color:#ff9993}
 .result-banner{display:none;margin:14px 0 4px;padding:15px;border:1px solid;border-radius:10px}.result-banner.success{display:block;background:rgba(50,197,106,.14);border-color:rgba(50,197,106,.6)}.result-banner.error{display:block;background:rgba(225,94,87,.14);border-color:rgba(225,94,87,.6)}
 .result-title{display:flex;align-items:center;gap:9px;font-size:21px;font-weight:900}.result-icon{display:grid;place-items:center;width:33px;height:33px;border-radius:50%;font-size:20px}.success .result-icon{background:var(--green);color:#092b16}.error .result-icon{background:var(--red);color:#3a0d0a}.result-detail{margin:8px 0 0;color:var(--soft);font-size:14px;line-height:1.65}.answer-chip{display:inline-block;border-radius:5px;padding:1px 6px;font-weight:900;color:var(--text);background:rgba(255,255,255,.11)}
+.definition-card{margin:12px 0;padding:18px 14px;text-align:center;border:1px dashed var(--goldbr);border-radius:10px;background:var(--goldbg)}.definition-term{font-size:24px;font-weight:900;line-height:1.45;color:var(--gold2)}.definition-answer{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--goldbr);white-space:pre-wrap;text-align:left;color:var(--soft);line-height:1.8}.definition-actions{display:none;margin-top:12px}
 .explain{display:none;margin-top:12px;color:var(--soft);font-size:14px;line-height:1.8;border-top:1px solid var(--line);padding-top:12px;white-space:pre-wrap}
 .list-item{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:8px}
 .list-q{font-weight:800;line-height:1.5}.list-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
@@ -660,6 +661,7 @@ let BANK=[],META={today:"",doneToday:0,sessions:0},TAB="home",CURRENT=null,QUEUE
 let KEY=localStorage.getItem("hrq-openai-key")||"";
 const OPENAI_KEY_PREFIX="s"+"k-";
 const subjects=["企業管理","法學緒論","人力資源管理","勞工法令","人力資源名詞解釋","企業管理名詞解釋","其他"];
+const definitionSubjects=["人力資源名詞解釋","企業管理名詞解釋"];
 const intervals=[0,1,3,7,14,30,60];
 function boot(){
   BANK=(window._bank||[]).map(normalize);
@@ -680,7 +682,7 @@ function normalize(q){
   q.question=q.question||"";
   q.options=q.options||{A:"",B:"",C:"",D:""};
   q.answer=normalizeAnswer(q.answer);
-  if(!q.answer){
+  if(!q.answer&&!isDefinition(q)){
     q.needsReview=true;
     q.explanation=q.explanation||"答案待確認";
   }else{
@@ -694,6 +696,7 @@ function normalize(q){
   q.srs=Object.assign({level:0,due:0,last:0},q.srs||{});
   return q;
 }
+function isDefinition(q){return definitionSubjects.includes(q&&q.subject);}
 function normalizeAnswer(value){
   let raw=String(value||"").toUpperCase().trim();
   if(!raw)return "";
@@ -793,16 +796,16 @@ function renderAdd(){
     <div class="section" style="margin-top:0">${editing?"修改題目":"手動新增"}</div>
     <div class="card">
       <div class="row">
-        <div class="field grow"><label>科目</label><select class="sel" id="mSubject">${subjectOptions(formQ.subject)}</select></div>
+        <div class="field grow"><label>科目</label><select class="sel" id="mSubject" onchange="toggleQuestionType()">${subjectOptions(formQ.subject)}</select></div>
         <div class="field grow"><label>章節</label><input class="inp" id="mChapter" placeholder="例如 1-6 企業管理" value="${esc(formQ.chapter)}"></div>
       </div>
-      <div class="field"><label>題目</label><textarea class="inp" id="mQuestion" rows="3" placeholder="貼上題目">${esc(formQ.question)}</textarea></div>
-      ${["A","B","C","D"].map(k=>`<div class="field"><label>選項 ${k}</label><input class="inp" id="m${k}" placeholder="${k} 選項內容" value="${esc(formQ.options[k])}"></div>`).join("")}
-      <div class="row">
+      <div class="field"><label id="questionLabel">${isDefinition(formQ)?"名詞":"題目"}</label><textarea class="inp" id="mQuestion" rows="3" placeholder="${isDefinition(formQ)?"例如：360 度績效回饋":"貼上題目"}">${esc(formQ.question)}</textarea></div>
+      <div id="choiceFields" style="display:${isDefinition(formQ)?"none":"block"}">${["A","B","C","D"].map(k=>`<div class="field"><label>選項 ${k}</label><input class="inp" id="m${k}" placeholder="${k} 選項內容" value="${esc(formQ.options[k])}"></div>`).join("")}
+      <div class="row" id="answerFields" style="display:${isDefinition(formQ)?"none":"flex"}">
         <div class="field grow"><label>答案（複選以逗號分隔）</label><input class="inp" id="mAnswer" placeholder="例如 A 或 A,C；未知可留白" value="${esc(formQ.answer)}"></div>
         <div class="field grow"><label>來源</label><input class="inp" id="mSource" placeholder="例如 103 鐵佐" value="${esc(formQ.source)}"></div>
       </div>
-      <div class="field"><label>解析</label><textarea class="inp" id="mExplain" rows="5" placeholder="解析、記憶點、你的筆記">${esc(formQ.explanation)}</textarea></div>
+      <div class="field"><label id="explainLabel">${isDefinition(formQ)?"名詞解釋":"解析"}</label><textarea class="inp" id="mExplain" rows="5" placeholder="${isDefinition(formQ)?"輸入定義、重點與記憶方式":"解析、記憶點、你的筆記"}>${esc(formQ.explanation)}</textarea></div>
       <div class="row"><button class="btn grow" onclick="addManual()">${editing?"儲存修改":"加入題庫"}</button>${editing?`<button class="btn secondary grow" onclick="cancelEdit()">取消</button>`:""}</div>
     </div>
     <div class="section">批次貼上</div>
@@ -844,6 +847,15 @@ function getManual(){
   });
 }
 function val(id){return document.getElementById(id).value.trim()}
+function toggleQuestionType(){
+  const definition=definitionSubjects.includes(val("mSubject"));
+  document.getElementById("choiceFields").style.display=definition?"none":"block";
+  document.getElementById("answerFields").style.display=definition?"none":"flex";
+  document.getElementById("questionLabel").textContent=definition?"名詞":"題目";
+  document.getElementById("explainLabel").textContent=definition?"名詞解釋":"解析";
+  document.getElementById("mQuestion").placeholder=definition?"例如：360 度績效回饋":"貼上題目";
+  document.getElementById("mExplain").placeholder=definition?"輸入定義、重點與記憶方式":"解析、記憶點、你的筆記";
+}
 function saveApiKey(){
   const k=val("apiKey");
   if(!k.startsWith(OPENAI_KEY_PREFIX)){toast("API Key 看起來格式不對");return}
@@ -898,19 +910,20 @@ function fileToB64(file){
   });
 }
 function aiPrompt(){
-  return `這是一張台灣考試題庫或講義頁照片。請像 OCR 一樣仔細讀取印刷文字，擷取所有看得清楚的四選一或複選題。
+  return `這是一張台灣考試題庫或講義頁照片。請像 OCR 一樣仔細讀取印刷文字，擷取所有看得清楚的四選一、複選題或名詞解釋。
 請只輸出有效 JSON，不要 markdown。格式：
-{"questions":[{"subject":"企業管理、法學緒論、人力資源管理、勞工法令、人力資源名詞解釋、企業管理名詞解釋或其他","chapter":"章節或頁面標題，例如 1-6 企業管理題庫","question":"題目文字","options":{"A":"選項A","B":"選項B","C":"選項C","D":"選項D"},"answer":"A 或 A,C；無法確認時空字串","explanation":"解析或記憶點，若圖片有解析請整理；若沒有解析就簡短說明","source":"題目來源，例如 103 鐵佐，若沒有則空字串"}]}
+{"questions":[{"subject":"企業管理、法學緒論、人力資源管理、勞工法令、人力資源名詞解釋、企業管理名詞解釋或其他","chapter":"章節或頁面標題，例如 1-6 企業管理題庫","question":"題目文字或名詞","options":{"A":"選項A","B":"選項B","C":"選項C","D":"選項D"},"answer":"選擇題填 A 或 A,C；名詞解釋留空字串","explanation":"解析或名詞定義、重點與記憶方式","source":"題目來源，例如 103 鐵佐，若沒有則空字串"}]}
 規則：
 1. 儘量擷取同一張照片中所有完整題目，不要只抓第一題。
 2. 題目通常以數字編號開始，選項可能是 (A)(B)(C)(D)、A. B. C. D. 或直排排列。
 3. 如果頁面右側、題目旁、解析區或括號標出答案，請用它當 answer。複選題請完整填入所有正確選項，以英文逗號分隔（例如 "A,C"），不可只取第一個。
 4. explanation 不可過度省略。每題至少要說明正確答案的理由／核心概念，以及最容易混淆的選項或陷阱；圖片有解析時，請完整保留關鍵條件、例外與數字。除非圖片資訊不足，請用 2–5 句繁體中文說明，不要只重述答案。
 5. 保留繁體中文。
-6. 如果題目與 A-D 選項清楚，但答案不確定，仍然收錄，answer 填空字串，explanation 寫「答案待確認」。
-7. subject 必須使用上述其中一個分類；名詞、定義、概念解釋、術語題請分到「人力資源名詞解釋」或「企業管理名詞解釋」。若判斷不出，使用「其他」。
-8. 不要把手寫筆記當成題目，但可以把有幫助的手寫記憶點放進 explanation。
-9. 若題目跨行，請合併成完整題幹。
+6. 名詞、定義、概念解釋、術語題請分到「人力資源名詞解釋」或「企業管理名詞解釋」；question 填名詞，explanation 填完整定義，options 四格與 answer 都留空字串。
+7. 如果選擇題與 A-D 選項清楚，但答案不確定，仍然收錄，answer 填空字串，explanation 寫「答案待確認」。
+8. subject 必須使用上述其中一個分類；若判斷不出，使用「其他」。
+9. 不要把手寫筆記當成題目，但可以把有幫助的手寫記憶點放進 explanation。
+10. 若題目跨行，請合併成完整題幹。
 `;
 }
 function parseJsonLoose(raw){
@@ -992,7 +1005,7 @@ async function scanPhoto(){
     const b64=await fileToB64(PHOTO);
     const raw=await callVision(b64);
     const parsed=parseJsonLoose(raw);
-    AI_PEND=(parsed.questions||[]).map(normalize).filter(q=>q.question&&q.options.A&&q.options.B&&q.options.C&&q.options.D);
+    AI_PEND=(parsed.questions||[]).map(normalize).filter(q=>q.question&&(isDefinition(q)?q.explanation:(q.options.A&&q.options.B&&q.options.C&&q.options.D)));
     renderAiPreview();
   }catch(err){
     let tip="請確認 API Key 正確、有額度，且圖片文字清楚。";
@@ -1018,19 +1031,19 @@ function renderAiPreview(){
     ${AI_PEND.map((q,i)=>`
       <div class="ai-result">
         <div class="list-q">${i+1}. ${esc(q.question)}</div>
-        <div class="hint" style="margin-top:8px">
+        ${isDefinition(q)?`<div class="hint" style="margin-top:8px;white-space:pre-wrap">${esc(q.explanation)}</div>`:`<div class="hint" style="margin-top:8px">
           A. ${esc(q.options.A)}<br>
           B. ${esc(q.options.B)}<br>
           C. ${esc(q.options.C)}<br>
           D. ${esc(q.options.D)}
-        </div>
+        </div>`}
         <div class="list-meta">
           <span class="pill">${esc(q.subject)}</span>
           ${q.chapter?`<span class="pill blue">${esc(q.chapter)}</span>`:""}
           <span class="pill ${q.needsReview?"red":""}">答 ${esc(answerText(q))}</span>
           ${q.source?`<span class="pill">${esc(q.source)}</span>`:""}
         </div>
-        ${q.explanation?`<div class="hint" style="margin-top:8px">${esc(q.explanation)}</div>`:""}
+        ${!isDefinition(q)&&q.explanation?`<div class="hint" style="margin-top:8px">${esc(q.explanation)}</div>`:""}
         <button class="btn secondary small" style="margin-top:10px" onclick="removeAi(${i})">移除這題</button>
       </div>`).join("")}
   `;
@@ -1051,7 +1064,7 @@ function addAiAll(){
 }
 function addManual(){
   const q=getManual();
-  if(!q.question||!q.options.A||!q.options.B||!q.options.C||!q.options.D){toast("題目和四個選項都要填");return}
+  if(!q.question||(isDefinition(q)?!q.explanation:(!q.options.A||!q.options.B||!q.options.C||!q.options.D))){toast(isDefinition(q)?"名詞與名詞解釋都要填":"題目和四個選項都要填");return}
   if(EDIT_ID){
     const old=BANK.find(x=>x.id===EDIT_ID);
     if(old){q.id=old.id;q.createdAt=old.createdAt;q.stats=old.stats;q.srs=old.srs;BANK=BANK.map(x=>x.id===EDIT_ID?q:x);}
@@ -1084,7 +1097,7 @@ function parseBatch(text){
     });
     q.question=qLines.join("\n");
     return normalize(q);
-  }).filter(q=>q.question&&q.options.A&&q.options.B&&q.options.C&&q.options.D);
+  }).filter(q=>q.question&&(isDefinition(q)?q.explanation:(q.options.A&&q.options.B&&q.options.C&&q.options.D)));
 }
 function renderPractice(){
   const el=document.getElementById("v-practice");
@@ -1109,8 +1122,8 @@ function startPractice(mode,subject){
   if(mode==="wrong")pool=BANK.filter(wrong);
   if(mode==="all")pool=BANK.slice();
   if(mode==="subject")pool=BANK.filter(q=>q.subject===subject);
-  const pending=pool.filter(q=>!q.answer).length;
-  pool=pool.filter(q=>q.answer);
+  const pending=pool.filter(q=>!isDefinition(q)&&!q.answer).length;
+  pool=pool.filter(q=>isDefinition(q)||q.answer);
   if(pending)toast(pending+" 題答案待確認，已略過");
   QUEUE=shuffle(pool);
   if(!QUEUE.length){toast("這個範圍目前沒有題目");return}
@@ -1120,6 +1133,7 @@ function startPractice(mode,subject){
 }
 function questionCard(q){
   PICKS=[];
+  if(isDefinition(q))return definitionCard(q);
   const multiple=answerKeys(q.answer).length>1;
   return `
     <div class="card">
@@ -1140,6 +1154,57 @@ function questionCard(q){
       </div>
     </div>
   `;
+}
+function definitionCard(q){
+  return `
+    <div class="card">
+      <div class="row wrap">
+        <span class="pill">${esc(q.subject)}</span>
+        ${q.chapter?`<span class="pill blue">${esc(q.chapter)}</span>`:""}
+        ${q.source?`<span class="pill">${esc(q.source)}</span>`:""}
+      </div>
+      <div class="hint" style="margin-top:12px">先想想看它的意思，再翻開解釋自評。</div>
+      <div class="definition-card">
+        <div class="definition-term">${esc(q.question)}</div>
+        <div class="definition-answer" id="definitionAnswer">${esc(q.explanation||"沒有名詞解釋。")}</div>
+      </div>
+      <button class="btn" id="revealDefinition" onclick="revealDefinition()">查看名詞解釋</button>
+      <div class="row definition-actions" id="definitionActions">
+        <button class="btn secondary grow" onclick="markDefinition('${q.id}',false)">還不熟</button>
+        <button class="btn grow" onclick="markDefinition('${q.id}',true)">我記得</button>
+      </div>
+      <div class="result-banner" id="resultBanner" role="status" aria-live="polite"></div>
+      <div class="row" id="nextRow" style="display:none;margin-top:12px">
+        <button class="btn grow" onclick="nextQ()">下一張</button>
+        <button class="btn secondary grow" onclick="CURRENT=null;renderPractice()">結束</button>
+      </div>
+    </div>
+  `;
+}
+function revealDefinition(){
+  document.getElementById("definitionAnswer").style.display="block";
+  document.getElementById("revealDefinition").style.display="none";
+  document.getElementById("definitionActions").style.display="flex";
+}
+function markDefinition(id,known){
+  const q=BANK.find(x=>x.id===id);if(!q)return;
+  document.querySelectorAll("#definitionActions button").forEach(b=>b.disabled=true);
+  q.stats.seen++;q.srs.last=Date.now();
+  if(known){
+    q.stats.correct++;q.stats.streak++;
+    q.srs.level=Math.min((q.srs.level||0)+1,intervals.length-1);
+  }else{
+    q.stats.wrong++;q.stats.streak=0;q.srs.level=0;
+  }
+  q.srs.due=Date.now()+intervals[q.srs.level]*86400000;
+  META.doneToday=(META.doneToday||0)+1;
+  const banner=document.getElementById("resultBanner");
+  banner.className="result-banner "+(known?"success":"error");
+  banner.innerHTML=known
+    ?`<div class="result-title"><span class="result-icon">✓</span>記得了！</div><div class="result-detail">連續記得：${q.stats.streak} 張</div>`
+    :`<div class="result-title"><span class="result-icon">✕</span>再複習一次</div><div class="result-detail">已排入近期複習。</div>`;
+  document.getElementById("nextRow").style.display="flex";
+  save();
 }
 function toggleAnswer(id,k){
   const q=BANK.find(x=>x.id===id);if(!q)return;
