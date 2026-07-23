@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0060)file:///Users/kumori67/Desktop/%E5%9C%8B%E7%87%9F/index.html -->
+<!-- saved from url=(0118)file:///Users/kumori67/Documents/Codex/2026-07-23/referenced-chatgpt-conversation-this-is-untrusted/outputs/index.html -->
 <html lang="zh-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -181,15 +181,13 @@ textarea{resize:vertical}
 .pill.blue{border-color:rgba(117,167,255,.35);background:rgba(117,167,255,.11);color:#9fc0ff}
 .qtitle{font-size:17px;font-weight:800;line-height:1.6;margin:8px 0 12px;white-space:pre-wrap}
 .opt{width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:12px;margin:7px 0;line-height:1.45}
-.opt:disabled{cursor:default;opacity:1}
-.opt.correct{border-color:rgba(50,197,106,.9);background:rgba(50,197,106,.18);box-shadow:inset 4px 0 0 var(--green)}
-.opt.wrong{border-color:rgba(225,94,87,.9);background:rgba(225,94,87,.18);box-shadow:inset 4px 0 0 var(--red)}
-.opt.selected{border-color:rgba(117,167,255,.8);background:rgba(117,167,255,.15)}
-.opt.correct.selected{border-color:rgba(50,197,106,.9);background:rgba(50,197,106,.18)}
-.option-result{float:right;font-size:12px;font-weight:800;margin-left:10px}.option-result.ok{color:#7ee5a3}.option-result.bad{color:#ff9993}
-.result-banner{display:none;margin:14px 0 4px;padding:15px;border:1px solid;border-radius:10px}.result-banner.success{display:block;background:rgba(50,197,106,.14);border-color:rgba(50,197,106,.6)}.result-banner.error{display:block;background:rgba(225,94,87,.14);border-color:rgba(225,94,87,.6)}
-.result-title{display:flex;align-items:center;gap:9px;font-size:21px;font-weight:900}.result-icon{display:grid;place-items:center;width:33px;height:33px;border-radius:50%;font-size:20px}.success .result-icon{background:var(--green);color:#092b16}.error .result-icon{background:var(--red);color:#3a0d0a}.result-detail{margin:8px 0 0;color:var(--soft);font-size:14px;line-height:1.65}.answer-chip{display:inline-block;border-radius:5px;padding:1px 6px;font-weight:900;color:var(--text);background:rgba(255,255,255,.11)}
-.definition-card{margin:12px 0;padding:18px 14px;text-align:center;border:1px dashed var(--goldbr);border-radius:10px;background:var(--goldbg)}.definition-term{font-size:24px;font-weight:900;line-height:1.45;color:var(--gold2)}.definition-answer{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--goldbr);white-space:pre-wrap;text-align:left;color:var(--soft);line-height:1.8}.definition-actions{display:none;margin-top:12px}
+.opt.correct{border-color:rgba(50,197,106,.65);background:rgba(50,197,106,.13)}
+.opt.wrong{border-color:rgba(225,94,87,.65);background:rgba(225,94,87,.13)}
+.feedback{display:none;margin:14px 0 4px;border-radius:10px;padding:15px;text-align:center;font-weight:800;font-size:18px;line-height:1.55}
+.feedback.ok{display:block;background:rgba(50,197,106,.16);border:1px solid rgba(50,197,106,.6);color:#8bf0b3}
+.feedback.no{display:block;background:rgba(225,94,87,.16);border:1px solid rgba(225,94,87,.6);color:#ffaaa5}
+.flashcard-answer{display:none;margin-top:14px;padding:15px;border-radius:10px;background:rgba(117,167,255,.10);border:1px solid rgba(117,167,255,.35);white-space:pre-wrap;line-height:1.8;color:var(--soft)}
+.flashcard-answer.show{display:block}
 .explain{display:none;margin-top:12px;color:var(--soft);font-size:14px;line-height:1.8;border-top:1px solid var(--line);padding-top:12px;white-space:pre-wrap}
 .list-item{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:8px}
 .list-q{font-weight:800;line-height:1.5}.list-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
@@ -209,14 +207,14 @@ nav button b{display:block;font-size:17px;margin-bottom:2px}nav button.on{color:
 <div id="app">
   <div class="top">
     <div class="title">國營<span>人資題庫</span></div>
-    <div class="sub">選擇題、錯題本、今日複習。資料使用 Firebase 雲端同步，並保留本機備份。</div>
+    <div class="sub">選擇題、名詞解釋、錯題本、今日複習。資料使用 Firebase 雲端同步，並保留本機備份。</div>
     <div class="sync"><span class="dot" id="dot" style="background: var(--green);"></span><span id="syncText">已同步</span></div>
   </div>
   <div class="stats">
-    <div class="stat"><div class="num" id="stTotal">13</div><div class="lab">總題數</div></div>
-    <div class="stat"><div class="num" id="stDue">13</div><div class="lab">今日複習</div></div>
-    <div class="stat"><div class="num" id="stWrong">4</div><div class="lab">錯題</div></div>
-    <div class="stat"><div class="num" id="stRate">20%</div><div class="lab">正確率</div></div>
+    <div class="stat"><div class="num" id="stTotal">17</div><div class="lab">總題數</div></div>
+    <div class="stat"><div class="num" id="stDue">17</div><div class="lab">今日複習</div></div>
+    <div class="stat"><div class="num" id="stWrong">8</div><div class="lab">錯題</div></div>
+    <div class="stat"><div class="num" id="stRate">29%</div><div class="lab">正確率</div></div>
   </div>
 
   <section class="view show" id="v-home">
@@ -231,95 +229,95 @@ nav button b{display:block;font-size:17px;margin-bottom:2px}nav button.on{color:
     <div class="section">最近新增</div>
     
     <div class="list-item">
+      <div class="list-q">有關人力資源管理的敘述，下列何者有誤？</div>
+      
+      <div class="list-meta">
+        <span class="pill">人力資源管理</span>
+        <span class="pill blue">111 國營 企業概論</span>
+        <span class="pill red">錯 4 / 對 0</span>
+        <span class="pill">答 A</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="preview(&#39;q1784516319854gjjx7gx05zt&#39;)">查看</button>
+        <button class="btn danger" onclick="delQ(&#39;q1784516319854gjjx7gx05zt&#39;)">刪除</button>
+      </div>
+    </div>
+  
+    <div class="list-item">
+      <div class="list-q">組織期待員工對組織有所貢獻，而員工期待組織會提供報酬，以上敘述屬於下列何者？</div>
+      
+      <div class="list-meta">
+        <span class="pill">企業管理</span>
+        <span class="pill blue">111 國營企業概論</span>
+        <span class="pill ">錯 0 / 對 0</span>
+        <span class="pill">答 D</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="preview(&#39;q178451622090658qznqrjnw4&#39;)">查看</button>
+        <button class="btn danger" onclick="delQ(&#39;q178451622090658qznqrjnw4&#39;)">刪除</button>
+      </div>
+    </div>
+  
+    <div class="list-item">
+      <div class="list-q">19. 小型企業經營失敗的原因有很多，下列何者是小型企業經營失敗常見的可能原因之一？</div>
+      
+      <div class="list-meta">
+        <span class="pill">企業管理或法學緒論</span>
+        <span class="pill blue">1-11 企業管理題庫</span>
+        <span class="pill ">錯 0 / 對 0</span>
+        <span class="pill">答 C</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="preview(&#39;q17842109488850lxdspku74y&#39;)">查看</button>
+        <button class="btn danger" onclick="delQ(&#39;q17842109488850lxdspku74y&#39;)">刪除</button>
+      </div>
+    </div>
+  
+    <div class="list-item">
+      <div class="list-q">20. 「性別工作平等法」之定義中，受僱者執行職務時，任何人以性要求或具有性意味或性別歧視言語或行為，對其造成敵意、脅迫性或冒犯之工作環境，致侵犯或干擾其人格尊嚴、人身自由或影響其工作表現者為。</div>
+      
+      <div class="list-meta">
+        <span class="pill">法學緒論</span>
+        <span class="pill blue">1-11 企業管理題庫</span>
+        <span class="pill red">錯 1 / 對 3</span>
+        <span class="pill">答 A</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="preview(&#39;q1784210948886d4qyxaa47y6&#39;)">查看</button>
+        <button class="btn danger" onclick="delQ(&#39;q1784210948886d4qyxaa47y6&#39;)">刪除</button>
+      </div>
+    </div>
+  
+    <div class="list-item">
       <div class="list-q">當企業修改生產過程以限制消耗有價值的資源時，表示該企業實踐？</div>
+      
       <div class="list-meta">
         <span class="pill">企業管理</span>
         <span class="pill blue">1-10 企業管理題庫・破 POINT</span>
-        <span class="pill red">錯 1 / 對 1</span>
-        <span class="pill ">答 D</span>
+        <span class="pill red">錯 4 / 對 2</span>
+        <span class="pill">答 A</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q17841274486271tcyneht8bc&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q17841274486271tcyneht8bc&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q17841274486271tcyneht8bc&#39;)">刪除</button>
-      </div>
-    </div>
-  
-    <div class="list-item">
-      <div class="list-q">創業類型對新創業家比較下列何者有誤？</div>
-      <div class="list-meta">
-        <span class="pill">企業管理</span>
-        <span class="pill blue">1-10 企業管理題庫・破 POINT</span>
-        <span class="pill ">錯 0 / 對 0</span>
-        <span class="pill ">答 C</span>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn secondary grow" onclick="preview(&#39;q1784127448627oaq2hm9lb5f&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784127448627oaq2hm9lb5f&#39;)">修改</button>
-        <button class="btn danger" onclick="delQ(&#39;q1784127448627oaq2hm9lb5f&#39;)">刪除</button>
-      </div>
-    </div>
-  
-    <div class="list-item">
-      <div class="list-q">中小企業資金來源主要會由企業老闆個人融資，例如私人大借貸，一般而言，企業所重視的經濟指標有哪些？</div>
-      <div class="list-meta">
-        <span class="pill">其他</span>
-        <span class="pill blue">1-9</span>
-        <span class="pill ">錯 0 / 對 0</span>
-        <span class="pill ">答 C</span>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn secondary grow" onclick="preview(&#39;q1784127404303fi9cl92k6fi&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784127404303fi9cl92k6fi&#39;)">修改</button>
-        <button class="btn danger" onclick="delQ(&#39;q1784127404303fi9cl92k6fi&#39;)">刪除</button>
-      </div>
-    </div>
-  
-    <div class="list-item">
-      <div class="list-q">下面哪些不屬於具備雙面市場特性的平臺？</div>
-      <div class="list-meta">
-        <span class="pill">其他</span>
-        <span class="pill blue">1-9</span>
-        <span class="pill ">錯 0 / 對 0</span>
-        <span class="pill ">答 D</span>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn secondary grow" onclick="preview(&#39;q1784127404303vwnd7a30pv&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784127404303vwnd7a30pv&#39;)">修改</button>
-        <button class="btn danger" onclick="delQ(&#39;q1784127404303vwnd7a30pv&#39;)">刪除</button>
-      </div>
-    </div>
-  
-    <div class="list-item">
-      <div class="list-q">倚賴分層授權的個資而取得金錢或其他利益的行為，屬於何種資訊科技的風險？</div>
-      <div class="list-meta">
-        <span class="pill">其他</span>
-        <span class="pill blue">1-9</span>
-        <span class="pill ">錯 0 / 對 0</span>
-        <span class="pill ">答 B</span>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn secondary grow" onclick="preview(&#39;q1784127404303agb1e0oyecf&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784127404303agb1e0oyecf&#39;)">修改</button>
-        <button class="btn danger" onclick="delQ(&#39;q1784127404303agb1e0oyecf&#39;)">刪除</button>
       </div>
     </div>
   
   </section>
   <section class="view" id="v-practice">
-      <div class="section" style="margin-top:0">選擇練習範圍</div>
+      <div class="section" style="margin-top:0">練習範圍</div>
       <div class="card">
-        <button class="btn" onclick="startPractice(&#39;due&#39;)">今日複習（13）</button>
-        <button class="btn secondary" style="margin-top:9px" onclick="startPractice(&#39;wrong&#39;)">錯題本（4）</button>
-        <button class="btn secondary" style="margin-top:9px" onclick="startPractice(&#39;all&#39;)">全部隨機（13）</button>
+        <button class="btn" onclick="startPractice(&#39;due&#39;)">今日複習（17）</button>
+        <button class="btn secondary" style="margin-top:9px" onclick="startPractice(&#39;wrong&#39;)">錯題本（8）</button>
+        <button class="btn secondary" style="margin-top:9px" onclick="startPractice(&#39;all&#39;)">全部隨機（17）</button>
       </div>
       <div class="section">依科目練習</div>
-      <button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;企業管理&#39;)">企業管理（4）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;法學緒論&#39;)">法學緒論（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;人力資源管理&#39;)">人力資源管理（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;勞工法令&#39;)">勞工法令（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;人力資源名詞解釋&#39;)">人力資源名詞解釋（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;企業管理名詞解釋&#39;)">企業管理名詞解釋（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;其他&#39;)">其他（9）</button>
+      <button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;企業管理&#39;)">企業管理（5）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;法學緒論&#39;)">法學緒論（1）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;人力資源管理&#39;)">人力資源管理（1）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;勞工法令&#39;)">勞工法令（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;人力資源名詞解釋&#39;)">人力資源名詞解釋（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;企業管理名詞解釋&#39;)">企業管理名詞解釋（0）</button><button class="btn ghost" style="width:100%;margin-bottom:8px" onclick="startPractice(&#39;subject&#39;,&#39;其他&#39;)">其他（9）</button>
     </section>
   <section class="view" id="v-add">
     <div class="section" style="margin-top:0">拍照一鍵新增</div>
     <div class="card">
-      <div class="hint">拍下題庫頁或從相簿選照片，AI 會自動抓出題目、選項、答案與解析。第一次使用請先填 OpenAI API Key，Key 只存在這台裝置。</div>
+      <div class="hint">拍下題庫頁或從相簿選照片，AI 會自動辨識選擇題，或把名詞、答案整理成名詞解釋卡。第一次使用請先填 OpenAI API Key，Key 只存在這台裝置。</div>
       <div class="field" style="margin-top:10px">
         <label>OpenAI API Key</label>
         <div class="row">
@@ -339,21 +337,18 @@ nav button b{display:block;font-size:17px;margin-bottom:2px}nav button.on{color:
     <div class="section" style="margin-top:0">手動新增</div>
     <div class="card">
       <div class="row">
-        <div class="field grow"><label>科目</label><select class="sel" id="mSubject"><option value="企業管理" selected="">企業管理</option><option value="法學緒論">法學緒論</option><option value="人力資源管理">人力資源管理</option><option value="勞工法令">勞工法令</option><option value="人力資源名詞解釋">人力資源名詞解釋</option><option value="企業管理名詞解釋">企業管理名詞解釋</option><option value="其他">其他</option></select></div>
-        <div class="field grow"><label>章節</label><input class="inp" id="mChapter" placeholder="例如 1-6 企業管理" value=""></div>
+        <div class="field grow"><label>科目</label><select class="sel" id="mSubject" onchange="renderManualFields()"><option value="企業管理" selected="">企業管理</option><option value="法學緒論">法學緒論</option><option value="人力資源管理">人力資源管理</option><option value="勞工法令">勞工法令</option><option value="人力資源名詞解釋">人力資源名詞解釋</option><option value="企業管理名詞解釋">企業管理名詞解釋</option><option value="其他">其他</option></select></div>
+        <div class="field grow"><label>章節</label><input class="inp" id="mChapter" placeholder="例如 1-6 企業管理"></div>
       </div>
-      <div class="field"><label>題目</label><textarea class="inp" id="mQuestion" rows="3" placeholder="貼上題目"></textarea></div>
-      <div class="field"><label>選項 A</label><input class="inp" id="mA" placeholder="A 選項內容" value=""></div><div class="field"><label>選項 B</label><input class="inp" id="mB" placeholder="B 選項內容" value=""></div><div class="field"><label>選項 C</label><input class="inp" id="mC" placeholder="C 選項內容" value=""></div><div class="field"><label>選項 D</label><input class="inp" id="mD" placeholder="D 選項內容" value=""></div>
-      <div class="row">
-        <div class="field grow"><label>答案（複選以逗號分隔）</label><input class="inp" id="mAnswer" placeholder="例如 A 或 A,C；未知可留白" value=""></div>
-        <div class="field grow"><label>來源</label><input class="inp" id="mSource" placeholder="例如 103 鐵佐" value=""></div>
-      </div>
-      <div class="field"><label>解析</label><textarea class="inp" id="mExplain" rows="5" placeholder="解析、記憶點、你的筆記"></textarea></div>
-      <div class="row"><button class="btn grow" onclick="addManual()">加入題庫</button></div>
+      <div id="manualFields"><div class="field"><label>題目</label><textarea class="inp" id="mQuestion" rows="3" placeholder="貼上題目"></textarea></div>
+    <div class="field"><label>選項 A</label><input class="inp" id="mA" placeholder="A 選項內容"></div><div class="field"><label>選項 B</label><input class="inp" id="mB" placeholder="B 選項內容"></div><div class="field"><label>選項 C</label><input class="inp" id="mC" placeholder="C 選項內容"></div><div class="field"><label>選項 D</label><input class="inp" id="mD" placeholder="D 選項內容"></div>
+    <div class="row"><div class="field grow"><label>答案</label><select class="sel" id="mAnswer"><option>A</option><option>B</option><option>C</option><option>D</option></select></div><div class="field grow"><label>來源</label><input class="inp" id="mSource" placeholder="例如 103 鐵佐"></div></div>
+    <div class="field"><label>解析</label><textarea class="inp" id="mExplain" rows="3" placeholder="解析、記憶點、你的筆記"></textarea></div></div>
+      <button class="btn" onclick="addManual()">加入題庫</button>
     </div>
     <div class="section">批次貼上</div>
     <div class="card">
-      <div class="hint">一題一段，空白行分隔。可用格式：題目、A.、B.、C.、D.、答案、解析、科目、章節、來源。</div>
+      <div class="hint">一題一段、空白行分隔。選擇題可用題目、A-D、答案、解析；名詞卡可用科目、名詞、答案、章節、來源。</div>
       <textarea class="inp" id="batchText" rows="10" style="margin-top:10px" placeholder="科目：企業管理
 章節：1-6
 題目：智慧財產權一般不包括哪一項？
@@ -362,7 +357,12 @@ B. 商標權
 C. 著作權
 D. 商業秘密
 答案：A
-解析：智慧財產權包含著作權、商標權、專利權、商業秘密。"></textarea>
+解析：智慧財產權包含著作權、商標權、專利權、商業秘密。
+
+科目：人力資源名詞解釋
+名詞：工作分析
+答案：蒐集工作內容、職責、條件與任職資格等資訊的系統性流程。
+章節：人力資源管理"></textarea>
       <button class="btn" style="margin-top:10px" onclick="addBatch()">批次加入</button>
     </div>
     <div class="section">備份</div>
@@ -385,196 +385,256 @@ D. 商業秘密
     <div class="field" style="margin-top:0"><input class="inp" id="search" placeholder="搜尋題目、解析、來源" oninput="filterBank()"></div>
     <div id="bankList">
     <div class="list-item">
+      <div class="list-q">有關人力資源管理的敘述，下列何者有誤？</div>
+      
+      <div class="list-meta">
+        <span class="pill">人力資源管理</span>
+        <span class="pill blue">111 國營 企業概論</span>
+        <span class="pill red">錯 4 / 對 0</span>
+        <span class="pill">答 A</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="preview(&#39;q1784516319854gjjx7gx05zt&#39;)">查看</button>
+        <button class="btn danger" onclick="delQ(&#39;q1784516319854gjjx7gx05zt&#39;)">刪除</button>
+      </div>
+    </div>
+  
+    <div class="list-item">
+      <div class="list-q">組織期待員工對組織有所貢獻，而員工期待組織會提供報酬，以上敘述屬於下列何者？</div>
+      
+      <div class="list-meta">
+        <span class="pill">企業管理</span>
+        <span class="pill blue">111 國營企業概論</span>
+        <span class="pill ">錯 0 / 對 0</span>
+        <span class="pill">答 D</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="preview(&#39;q178451622090658qznqrjnw4&#39;)">查看</button>
+        <button class="btn danger" onclick="delQ(&#39;q178451622090658qznqrjnw4&#39;)">刪除</button>
+      </div>
+    </div>
+  
+    <div class="list-item">
+      <div class="list-q">19. 小型企業經營失敗的原因有很多，下列何者是小型企業經營失敗常見的可能原因之一？</div>
+      
+      <div class="list-meta">
+        <span class="pill">企業管理或法學緒論</span>
+        <span class="pill blue">1-11 企業管理題庫</span>
+        <span class="pill ">錯 0 / 對 0</span>
+        <span class="pill">答 C</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="preview(&#39;q17842109488850lxdspku74y&#39;)">查看</button>
+        <button class="btn danger" onclick="delQ(&#39;q17842109488850lxdspku74y&#39;)">刪除</button>
+      </div>
+    </div>
+  
+    <div class="list-item">
+      <div class="list-q">20. 「性別工作平等法」之定義中，受僱者執行職務時，任何人以性要求或具有性意味或性別歧視言語或行為，對其造成敵意、脅迫性或冒犯之工作環境，致侵犯或干擾其人格尊嚴、人身自由或影響其工作表現者為。</div>
+      
+      <div class="list-meta">
+        <span class="pill">法學緒論</span>
+        <span class="pill blue">1-11 企業管理題庫</span>
+        <span class="pill red">錯 1 / 對 3</span>
+        <span class="pill">答 A</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="preview(&#39;q1784210948886d4qyxaa47y6&#39;)">查看</button>
+        <button class="btn danger" onclick="delQ(&#39;q1784210948886d4qyxaa47y6&#39;)">刪除</button>
+      </div>
+    </div>
+  
+    <div class="list-item">
       <div class="list-q">當企業修改生產過程以限制消耗有價值的資源時，表示該企業實踐？</div>
+      
       <div class="list-meta">
         <span class="pill">企業管理</span>
         <span class="pill blue">1-10 企業管理題庫・破 POINT</span>
-        <span class="pill red">錯 1 / 對 1</span>
-        <span class="pill ">答 D</span>
+        <span class="pill red">錯 4 / 對 2</span>
+        <span class="pill">答 A</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q17841274486271tcyneht8bc&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q17841274486271tcyneht8bc&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q17841274486271tcyneht8bc&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
       <div class="list-q">創業類型對新創業家比較下列何者有誤？</div>
+      
       <div class="list-meta">
         <span class="pill">企業管理</span>
         <span class="pill blue">1-10 企業管理題庫・破 POINT</span>
-        <span class="pill ">錯 0 / 對 0</span>
-        <span class="pill ">答 C</span>
+        <span class="pill red">錯 2 / 對 1</span>
+        <span class="pill">答 C</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q1784127448627oaq2hm9lb5f&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784127448627oaq2hm9lb5f&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q1784127448627oaq2hm9lb5f&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
       <div class="list-q">中小企業資金來源主要會由企業老闆個人融資，例如私人大借貸，一般而言，企業所重視的經濟指標有哪些？</div>
+      
       <div class="list-meta">
         <span class="pill">其他</span>
         <span class="pill blue">1-9</span>
-        <span class="pill ">錯 0 / 對 0</span>
-        <span class="pill ">答 C</span>
+        <span class="pill red">錯 1 / 對 0</span>
+        <span class="pill">答 C</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q1784127404303fi9cl92k6fi&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784127404303fi9cl92k6fi&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q1784127404303fi9cl92k6fi&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
       <div class="list-q">下面哪些不屬於具備雙面市場特性的平臺？</div>
+      
       <div class="list-meta">
         <span class="pill">其他</span>
         <span class="pill blue">1-9</span>
         <span class="pill ">錯 0 / 對 0</span>
-        <span class="pill ">答 D</span>
+        <span class="pill">答 D</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q1784127404303vwnd7a30pv&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784127404303vwnd7a30pv&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q1784127404303vwnd7a30pv&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
       <div class="list-q">倚賴分層授權的個資而取得金錢或其他利益的行為，屬於何種資訊科技的風險？</div>
+      
       <div class="list-meta">
         <span class="pill">其他</span>
         <span class="pill blue">1-9</span>
         <span class="pill ">錯 0 / 對 0</span>
-        <span class="pill ">答 B</span>
+        <span class="pill">答 B</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q1784127404303agb1e0oyecf&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784127404303agb1e0oyecf&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q1784127404303agb1e0oyecf&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
       <div class="list-q">下列何者不是學者 Johnson, Christensen, and Kagermann 之商業模式 (Business Model) 四大重要構面？</div>
+      
       <div class="list-meta">
         <span class="pill">其他</span>
         <span class="pill blue">1-8 企業管理題庫</span>
         <span class="pill ">錯 0 / 對 0</span>
-        <span class="pill ">答 B</span>
+        <span class="pill">答 B</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q17841272807906dxppiv0o6q&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q17841272807906dxppiv0o6q&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q17841272807906dxppiv0o6q&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
       <div class="list-q">企業的生產要素 (Factors of Production) 是指企業用來生產商品或服務所要投入的資源。包括勞力資本、實體資源、企業家及資訊等資源。下列何者屬於資本資源？</div>
+      
       <div class="list-meta">
         <span class="pill">其他</span>
         <span class="pill blue">1-8 企業管理題庫</span>
         <span class="pill ">錯 0 / 對 0</span>
-        <span class="pill ">答 B</span>
+        <span class="pill">答 B</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q1784127280790tryaw788c6r&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784127280790tryaw788c6r&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q1784127280790tryaw788c6r&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
       <div class="list-q">一家公司創業成功之後，若想爬升市場上的領導者，並為股東帶來財富，下列哪一個做法是無效的？</div>
+      
       <div class="list-meta">
         <span class="pill">其他</span>
         <span class="pill blue">1-8 企業管理題庫</span>
         <span class="pill ">錯 0 / 對 0</span>
-        <span class="pill ">答 B</span>
+        <span class="pill">答 B</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q1784127280790o3r5uh7geib&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784127280790o3r5uh7geib&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q1784127280790o3r5uh7geib&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
       <div class="list-q">對於企業經營型態的分類，下列敘述何者錯誤？</div>
+      
       <div class="list-meta">
         <span class="pill">企業管理</span>
         <span class="pill blue">1-7 企業管理</span>
         <span class="pill ">錯 0 / 對 0</span>
-        <span class="pill ">答 A</span>
+        <span class="pill">答 A</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q1784127246898xdaesduioap&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784127246898xdaesduioap&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q1784127246898xdaesduioap&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
       <div class="list-q">此題可以是哪些選項重生企業生產一定要有的</div>
+      
       <div class="list-meta">
         <span class="pill">其他</span>
         <span class="pill blue">1-7 企業管理</span>
         <span class="pill ">錯 0 / 對 0</span>
-        <span class="pill ">答 A</span>
+        <span class="pill">答 A</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q1784127246898gwp83xzmjr&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784127246898gwp83xzmjr&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q1784127246898gwp83xzmjr&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
       <div class="list-q">中小企業為大多數經濟體最重要的一環，下列對中小企業的敘述何者正確？</div>
+      
       <div class="list-meta">
         <span class="pill">企業管理</span>
         <span class="pill blue">1-7 企業管理</span>
         <span class="pill red">錯 1 / 對 0</span>
-        <span class="pill ">答 A</span>
+        <span class="pill">答 A</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q1784127246898bp7t33yrhzk&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784127246898bp7t33yrhzk&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q1784127246898bp7t33yrhzk&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
       <div class="list-q">智識財產權是指智力創作成果，包括哪部分？</div>
+      
       <div class="list-meta">
         <span class="pill">其他</span>
         <span class="pill blue">1-6 企業管理題庫</span>
         <span class="pill red">錯 1 / 對 0</span>
-        <span class="pill ">答 C</span>
+        <span class="pill">答 C</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q1784111240007x0v142721sq&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784111240007x0v142721sq&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q1784111240007x0v142721sq&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
       <div class="list-q">下列哪一項不是資本主義市場運作的基本條件？</div>
+      
       <div class="list-meta">
         <span class="pill">其他</span>
         <span class="pill blue">1-6 企業管理題庫</span>
         <span class="pill red">錯 1 / 對 0</span>
-        <span class="pill ">答 C</span>
+        <span class="pill">答 C</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q1784111240007rsb1waa7d0s&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784111240007rsb1waa7d0s&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q1784111240007rsb1waa7d0s&#39;)">刪除</button>
       </div>
     </div>
@@ -585,61 +645,121 @@ D. 商業秘密
     <div class="section">錯題列表</div>
     
     <div class="list-item">
+      <div class="list-q">有關人力資源管理的敘述，下列何者有誤？</div>
+      
+      <div class="list-meta">
+        <span class="pill">人力資源管理</span>
+        <span class="pill blue">111 國營 企業概論</span>
+        <span class="pill red">錯 4 / 對 0</span>
+        <span class="pill">答 A</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="preview(&#39;q1784516319854gjjx7gx05zt&#39;)">查看</button>
+        <button class="btn danger" onclick="delQ(&#39;q1784516319854gjjx7gx05zt&#39;)">刪除</button>
+      </div>
+    </div>
+  
+    <div class="list-item">
       <div class="list-q">當企業修改生產過程以限制消耗有價值的資源時，表示該企業實踐？</div>
+      
       <div class="list-meta">
         <span class="pill">企業管理</span>
         <span class="pill blue">1-10 企業管理題庫・破 POINT</span>
-        <span class="pill red">錯 1 / 對 1</span>
-        <span class="pill ">答 D</span>
+        <span class="pill red">錯 4 / 對 2</span>
+        <span class="pill">答 A</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q17841274486271tcyneht8bc&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q17841274486271tcyneht8bc&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q17841274486271tcyneht8bc&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
+      <div class="list-q">創業類型對新創業家比較下列何者有誤？</div>
+      
+      <div class="list-meta">
+        <span class="pill">企業管理</span>
+        <span class="pill blue">1-10 企業管理題庫・破 POINT</span>
+        <span class="pill red">錯 2 / 對 1</span>
+        <span class="pill">答 C</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="preview(&#39;q1784127448627oaq2hm9lb5f&#39;)">查看</button>
+        <button class="btn danger" onclick="delQ(&#39;q1784127448627oaq2hm9lb5f&#39;)">刪除</button>
+      </div>
+    </div>
+  
+    <div class="list-item">
+      <div class="list-q">20. 「性別工作平等法」之定義中，受僱者執行職務時，任何人以性要求或具有性意味或性別歧視言語或行為，對其造成敵意、脅迫性或冒犯之工作環境，致侵犯或干擾其人格尊嚴、人身自由或影響其工作表現者為。</div>
+      
+      <div class="list-meta">
+        <span class="pill">法學緒論</span>
+        <span class="pill blue">1-11 企業管理題庫</span>
+        <span class="pill red">錯 1 / 對 3</span>
+        <span class="pill">答 A</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="preview(&#39;q1784210948886d4qyxaa47y6&#39;)">查看</button>
+        <button class="btn danger" onclick="delQ(&#39;q1784210948886d4qyxaa47y6&#39;)">刪除</button>
+      </div>
+    </div>
+  
+    <div class="list-item">
+      <div class="list-q">中小企業資金來源主要會由企業老闆個人融資，例如私人大借貸，一般而言，企業所重視的經濟指標有哪些？</div>
+      
+      <div class="list-meta">
+        <span class="pill">其他</span>
+        <span class="pill blue">1-9</span>
+        <span class="pill red">錯 1 / 對 0</span>
+        <span class="pill">答 C</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn secondary grow" onclick="preview(&#39;q1784127404303fi9cl92k6fi&#39;)">查看</button>
+        <button class="btn danger" onclick="delQ(&#39;q1784127404303fi9cl92k6fi&#39;)">刪除</button>
+      </div>
+    </div>
+  
+    <div class="list-item">
       <div class="list-q">中小企業為大多數經濟體最重要的一環，下列對中小企業的敘述何者正確？</div>
+      
       <div class="list-meta">
         <span class="pill">企業管理</span>
         <span class="pill blue">1-7 企業管理</span>
         <span class="pill red">錯 1 / 對 0</span>
-        <span class="pill ">答 A</span>
+        <span class="pill">答 A</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q1784127246898bp7t33yrhzk&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784127246898bp7t33yrhzk&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q1784127246898bp7t33yrhzk&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
       <div class="list-q">智識財產權是指智力創作成果，包括哪部分？</div>
+      
       <div class="list-meta">
         <span class="pill">其他</span>
         <span class="pill blue">1-6 企業管理題庫</span>
         <span class="pill red">錯 1 / 對 0</span>
-        <span class="pill ">答 C</span>
+        <span class="pill">答 C</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q1784111240007x0v142721sq&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784111240007x0v142721sq&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q1784111240007x0v142721sq&#39;)">刪除</button>
       </div>
     </div>
   
     <div class="list-item">
       <div class="list-q">下列哪一項不是資本主義市場運作的基本條件？</div>
+      
       <div class="list-meta">
         <span class="pill">其他</span>
         <span class="pill blue">1-6 企業管理題庫</span>
         <span class="pill red">錯 1 / 對 0</span>
-        <span class="pill ">答 C</span>
+        <span class="pill">答 C</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview(&#39;q1784111240007rsb1waa7d0s&#39;)">查看</button>
-        <button class="btn secondary grow" onclick="editQ(&#39;q1784111240007rsb1waa7d0s&#39;)">修改</button>
         <button class="btn danger" onclick="delQ(&#39;q1784111240007rsb1waa7d0s&#39;)">刪除</button>
       </div>
     </div>
@@ -657,11 +777,11 @@ D. 商業秘密
 <div class="toast" id="toast"></div>
 
 <script>
-let BANK=[],META={today:"",doneToday:0,sessions:0},TAB="home",CURRENT=null,QUEUE=[],SAVE_TMR=null,PHOTO=null,AI_PEND=[],PICKS=[],EDIT_ID=null;
+let BANK=[],META={today:"",doneToday:0,sessions:0},TAB="home",CURRENT=null,QUEUE=[],SAVE_TMR=null,PHOTO=null,AI_PEND=[];
 let KEY=localStorage.getItem("hrq-openai-key")||"";
 const OPENAI_KEY_PREFIX="s"+"k-";
 const subjects=["企業管理","法學緒論","人力資源管理","勞工法令","人力資源名詞解釋","企業管理名詞解釋","其他"];
-const definitionSubjects=["人力資源名詞解釋","企業管理名詞解釋"];
+const glossarySubjects=["人力資源名詞解釋","企業管理名詞解釋"];
 const intervals=[0,1,3,7,14,30,60];
 function boot(){
   BANK=(window._bank||[]).map(normalize);
@@ -676,17 +796,21 @@ if(window._cloudReady)boot();
 function normalize(q){
   q.id=q.id||("q"+Date.now()+Math.random().toString(36).slice(2));
   q.subject=q.subject||"企業管理";
-  // 舊版的國文／英文題目不刪除，只歸入「其他」，避免舊 Firebase 題庫出現已移除的分類。
-  if(q.subject==="國文"||q.subject==="英文")q.subject="其他";
+  q.type=q.type==="glossary"||glossarySubjects.includes(q.subject)?"glossary":"choice";
   q.chapter=q.chapter||"";
-  q.question=q.question||"";
+  q.term=q.term||"";
+  q.question=q.question||q.term||"";
+  if(q.type==="glossary"){
+    q.term=q.term||q.question;
+    q.answer=q.answer||"";
+    q.explanation=q.explanation||"";
+  }
   q.options=q.options||{A:"",B:"",C:"",D:""};
-  q.answer=normalizeAnswer(q.answer);
-  if(!q.answer&&!isDefinition(q)){
+  if(q.type==="choice")q.answer=(q.answer||"").toUpperCase();
+  if(q.type==="choice"&&!["A","B","C","D"].includes(q.answer)){
+    q.answer="A";
     q.needsReview=true;
     q.explanation=q.explanation||"答案待確認";
-  }else{
-    q.needsReview=false;
   }
   q.explanation=q.explanation||"";
   q.source=q.source||"";
@@ -696,18 +820,6 @@ function normalize(q){
   q.srs=Object.assign({level:0,due:0,last:0},q.srs||{});
   return q;
 }
-function isDefinition(q){return definitionSubjects.includes(q&&q.subject);}
-function normalizeAnswer(value){
-  let raw=String(value||"").toUpperCase().trim();
-  if(!raw)return "";
-  // OCR 常把答案寫成「(A)(C)」、「A、C」或「1、3」；統一為 A,C。
-  const digitMap={"1":"A","2":"B","3":"C","4":"D"};
-  let keys=(raw.match(/[ABCD]/g)||[]);
-  if(!keys.length&&/^[\s,，、/、與及和1-4]+$/.test(raw))keys=(raw.match(/[1-4]/g)||[]).map(x=>digitMap[x]);
-  return [...new Set(keys)].sort().join(",");
-}
-function answerKeys(answer){return String(answer||"").split(",").filter(x=>/[ABCD]/.test(x));}
-function answerText(q){return q.answer||"待確認";}
 function today(){return new Date().toLocaleDateString("sv-SE");}
 function checkDay(){if(META.today!==today()){META.today=today();META.doneToday=0;}}
 function due(q){return (q.srs&&q.srs.due||0)<=Date.now();}
@@ -771,12 +883,10 @@ function renderHome(){
   `;
 }
 function renderAdd(){
-  const editing=EDIT_ID?BANK.find(q=>q.id===EDIT_ID):null;
-  const formQ=editing||{subject:"企業管理",chapter:"",question:"",options:{A:"",B:"",C:"",D:""},answer:"",source:"",explanation:""};
   document.getElementById("v-add").innerHTML=`
     <div class="section" style="margin-top:0">拍照一鍵新增</div>
     <div class="card">
-      <div class="hint">拍下題庫頁或從相簿選照片，AI 會自動抓出題目、選項、答案與解析。第一次使用請先填 OpenAI API Key，Key 只存在這台裝置。</div>
+      <div class="hint">拍下題庫頁或從相簿選照片，AI 會自動辨識選擇題，或把名詞、答案整理成名詞解釋卡。第一次使用請先填 OpenAI API Key，Key 只存在這台裝置。</div>
       <div class="field" style="margin-top:10px">
         <label>OpenAI API Key</label>
         <div class="row">
@@ -793,24 +903,18 @@ function renderAdd(){
       <div id="photoBox"></div>
       <div id="aiBox"></div>
     </div>
-    <div class="section" style="margin-top:0">${editing?"修改題目":"手動新增"}</div>
+    <div class="section" style="margin-top:0">手動新增</div>
     <div class="card">
       <div class="row">
-        <div class="field grow"><label>科目</label><select class="sel" id="mSubject" onchange="toggleQuestionType()">${subjectOptions(formQ.subject)}</select></div>
-        <div class="field grow"><label>章節</label><input class="inp" id="mChapter" placeholder="例如 1-6 企業管理" value="${esc(formQ.chapter)}"></div>
+        <div class="field grow"><label>科目</label><select class="sel" id="mSubject" onchange="renderManualFields()">${subjectOptions("企業管理")}</select></div>
+        <div class="field grow"><label>章節</label><input class="inp" id="mChapter" placeholder="例如 1-6 企業管理"></div>
       </div>
-      <div class="field"><label id="questionLabel">${isDefinition(formQ)?"名詞":"題目"}</label><textarea class="inp" id="mQuestion" rows="3" placeholder="${isDefinition(formQ)?"例如：360 度績效回饋":"貼上題目"}">${esc(formQ.question)}</textarea></div>
-      <div id="choiceFields" style="display:${isDefinition(formQ)?"none":"block"}">${["A","B","C","D"].map(k=>`<div class="field"><label>選項 ${k}</label><input class="inp" id="m${k}" placeholder="${k} 選項內容" value="${esc(formQ.options[k])}"></div>`).join("")}
-      <div class="row" id="answerFields" style="display:${isDefinition(formQ)?"none":"flex"}">
-        <div class="field grow"><label>答案（複選以逗號分隔）</label><input class="inp" id="mAnswer" placeholder="例如 A 或 A,C；未知可留白" value="${esc(formQ.answer)}"></div>
-        <div class="field grow"><label>來源</label><input class="inp" id="mSource" placeholder="例如 103 鐵佐" value="${esc(formQ.source)}"></div>
-      </div>
-      <div class="field"><label id="explainLabel">${isDefinition(formQ)?"名詞解釋":"解析"}</label><textarea class="inp" id="mExplain" rows="5" placeholder="${isDefinition(formQ)?"輸入定義、重點與記憶方式":"解析、記憶點、你的筆記"}>${esc(formQ.explanation)}</textarea></div>
-      <div class="row"><button class="btn grow" onclick="addManual()">${editing?"儲存修改":"加入題庫"}</button>${editing?`<button class="btn secondary grow" onclick="cancelEdit()">取消</button>`:""}</div>
+      <div id="manualFields"></div>
+      <button class="btn" onclick="addManual()">加入題庫</button>
     </div>
     <div class="section">批次貼上</div>
     <div class="card">
-      <div class="hint">一題一段，空白行分隔。可用格式：題目、A.、B.、C.、D.、答案、解析、科目、章節、來源。</div>
+      <div class="hint">一題一段、空白行分隔。選擇題可用題目、A-D、答案、解析；名詞卡可用科目、名詞、答案、章節、來源。</div>
       <textarea class="inp" id="batchText" rows="10" style="margin-top:10px" placeholder="科目：企業管理
 章節：1-6
 題目：智慧財產權一般不包括哪一項？
@@ -819,7 +923,12 @@ B. 商標權
 C. 著作權
 D. 商業秘密
 答案：A
-解析：智慧財產權包含著作權、商標權、專利權、商業秘密。"></textarea>
+解析：智慧財產權包含著作權、商標權、專利權、商業秘密。
+
+科目：人力資源名詞解釋
+名詞：工作分析
+答案：蒐集工作內容、職責、條件與任職資格等資訊的系統性流程。
+章節：人力資源管理"></textarea>
       <button class="btn" style="margin-top:10px" onclick="addBatch()">批次加入</button>
     </div>
     <div class="section">備份</div>
@@ -838,23 +947,29 @@ D. 商業秘密
       <input id="jsonFile" type="file" accept="application/json" style="display:none" onchange="importJson(event)">
     </div>
   `;
+  renderManualFields();
 }
 function getManual(){
+  const subject=val("mSubject");
+  if(glossarySubjects.includes(subject))return normalize({type:"glossary",subject,chapter:val("mChapter"),term:val("mTerm"),answer:val("mGlossaryAnswer"),source:val("mSource")});
   return normalize({
-    subject:val("mSubject"),chapter:val("mChapter"),question:val("mQuestion"),
+    type:"choice",subject,chapter:val("mChapter"),question:val("mQuestion"),
     options:{A:val("mA"),B:val("mB"),C:val("mC"),D:val("mD")},
     answer:val("mAnswer"),source:val("mSource"),explanation:val("mExplain")
   });
 }
 function val(id){return document.getElementById(id).value.trim()}
-function toggleQuestionType(){
-  const definition=definitionSubjects.includes(val("mSubject"));
-  document.getElementById("choiceFields").style.display=definition?"none":"block";
-  document.getElementById("answerFields").style.display=definition?"none":"flex";
-  document.getElementById("questionLabel").textContent=definition?"名詞":"題目";
-  document.getElementById("explainLabel").textContent=definition?"名詞解釋":"解析";
-  document.getElementById("mQuestion").placeholder=definition?"例如：360 度績效回饋":"貼上題目";
-  document.getElementById("mExplain").placeholder=definition?"輸入定義、重點與記憶方式":"解析、記憶點、你的筆記";
+function renderManualFields(){
+  const box=document.getElementById("manualFields");if(!box)return;
+  const glossary=glossarySubjects.includes(document.getElementById("mSubject").value);
+  box.innerHTML=glossary?`
+    <div class="field"><label>名詞</label><input class="inp" id="mTerm" placeholder="例如：工作分析（Job Analysis）"></div>
+    <div class="field"><label>答案</label><textarea class="inp" id="mGlossaryAnswer" rows="5" placeholder="輸入名詞解釋、定義或記憶重點"></textarea></div>
+    <div class="field"><label>來源（選填）</label><input class="inp" id="mSource" placeholder="例如：人力資源管理課本"></div>
+  `:`<div class="field"><label>題目</label><textarea class="inp" id="mQuestion" rows="3" placeholder="貼上題目"></textarea></div>
+    ${["A","B","C","D"].map(k=>`<div class="field"><label>選項 ${k}</label><input class="inp" id="m${k}" placeholder="${k} 選項內容"></div>`).join("")}
+    <div class="row"><div class="field grow"><label>答案</label><select class="sel" id="mAnswer">${["A","B","C","D"].map(k=>`<option>${k}</option>`).join("")}</select></div><div class="field grow"><label>來源</label><input class="inp" id="mSource" placeholder="例如 103 鐵佐"></div></div>
+    <div class="field"><label>解析</label><textarea class="inp" id="mExplain" rows="3" placeholder="解析、記憶點、你的筆記"></textarea></div>`;
 }
 function saveApiKey(){
   const k=val("apiKey");
@@ -910,18 +1025,18 @@ function fileToB64(file){
   });
 }
 function aiPrompt(){
-  return `這是一張台灣考試題庫或講義頁照片。請像 OCR 一樣仔細讀取印刷文字，擷取所有看得清楚的四選一、複選題或名詞解釋。
+  return `這是一張台灣考試題庫或講義頁照片。請像 OCR 一樣仔細讀取印刷文字，擷取所有看得清楚的四選一選擇題或名詞解釋。
 請只輸出有效 JSON，不要 markdown。格式：
-{"questions":[{"subject":"企業管理、法學緒論、人力資源管理、勞工法令、人力資源名詞解釋、企業管理名詞解釋或其他","chapter":"章節或頁面標題，例如 1-6 企業管理題庫","question":"題目文字或名詞","options":{"A":"選項A","B":"選項B","C":"選項C","D":"選項D"},"answer":"選擇題填 A 或 A,C；名詞解釋留空字串","explanation":"解析或名詞定義、重點與記憶方式","source":"題目來源，例如 103 鐵佐，若沒有則空字串"}]}
+{"questions":[{"type":"choice","subject":"企業管理或法學緒論或人力資源管理或勞工法令或其他","chapter":"章節","question":"題目文字","options":{"A":"選項A","B":"選項B","C":"選項C","D":"選項D"},"answer":"A","explanation":"解析","source":"來源"},{"type":"glossary","subject":"人力資源名詞解釋或企業管理名詞解釋","chapter":"章節","term":"名詞","answer":"完整解釋","source":"來源"}]}
 規則：
 1. 儘量擷取同一張照片中所有完整題目，不要只抓第一題。
 2. 題目通常以數字編號開始，選項可能是 (A)(B)(C)(D)、A. B. C. D. 或直排排列。
-3. 如果頁面右側、題目旁、解析區或括號標出答案，請用它當 answer。複選題請完整填入所有正確選項，以英文逗號分隔（例如 "A,C"），不可只取第一個。
-4. explanation 不可過度省略。每題至少要說明正確答案的理由／核心概念，以及最容易混淆的選項或陷阱；圖片有解析時，請完整保留關鍵條件、例外與數字。除非圖片資訊不足，請用 2–5 句繁體中文說明，不要只重述答案。
+3. 如果頁面右側、題目旁、解析區或括號標出答案，請用它當 answer。
+4. 如果有「解析」、「記憶點」、「POINT」等內容，請整理到 explanation。
 5. 保留繁體中文。
-6. 名詞、定義、概念解釋、術語題請分到「人力資源名詞解釋」或「企業管理名詞解釋」；question 填名詞，explanation 填完整定義，options 四格與 answer 都留空字串。
-7. 如果選擇題與 A-D 選項清楚，但答案不確定，仍然收錄，answer 填空字串，explanation 寫「答案待確認」。
-8. subject 必須使用上述其中一個分類；若判斷不出，使用「其他」。
+6. 如果題目與 A-D 選項清楚，但答案不確定，仍然收錄，answer 填空字串，explanation 寫「答案待確認」。
+7. 若內容是「名詞／定義／解釋」而非 A-D 題目，必須使用 type glossary；依內容選擇人力資源名詞解釋或企業管理名詞解釋。
+8. subject 若判斷不出，使用「其他」。
 9. 不要把手寫筆記當成題目，但可以把有幫助的手寫記憶點放進 explanation。
 10. 若題目跨行，請合併成完整題幹。
 `;
@@ -951,7 +1066,7 @@ async function callVision(b64){
     headers:{"Content-Type":"application/json","Authorization":"Bearer "+KEY},
     body:JSON.stringify({
       model:"gpt-4o",
-      max_tokens:8000,
+      max_tokens:6000,
       response_format:{type:"json_object"},
       messages:[
         {role:"system",content:"你是台灣考試選擇題 OCR 整理助手，擅長讀取課本題庫、印刷字、手寫註記與右側答案。你只輸出有效 JSON。"},
@@ -1005,7 +1120,7 @@ async function scanPhoto(){
     const b64=await fileToB64(PHOTO);
     const raw=await callVision(b64);
     const parsed=parseJsonLoose(raw);
-    AI_PEND=(parsed.questions||[]).map(normalize).filter(q=>q.question&&(isDefinition(q)?q.explanation:(q.options.A&&q.options.B&&q.options.C&&q.options.D)));
+    AI_PEND=(parsed.questions||[]).map(normalize).filter(q=>q.type==="glossary"?(q.term&&q.answer):(q.question&&q.options.A&&q.options.B&&q.options.C&&q.options.D));
     renderAiPreview();
   }catch(err){
     let tip="請確認 API Key 正確、有額度，且圖片文字清楚。";
@@ -1030,8 +1145,8 @@ function renderAiPreview(){
     </div>
     ${AI_PEND.map((q,i)=>`
       <div class="ai-result">
-        <div class="list-q">${i+1}. ${esc(q.question)}</div>
-        ${isDefinition(q)?`<div class="hint" style="margin-top:8px;white-space:pre-wrap">${esc(q.explanation)}</div>`:`<div class="hint" style="margin-top:8px">
+        <div class="list-q">${i+1}. ${esc(q.type==="glossary"?q.term:q.question)}</div>
+        ${q.type==="glossary"?`<div class="hint" style="margin-top:8px">${esc(q.answer)}</div>`:`<div class="hint" style="margin-top:8px">
           A. ${esc(q.options.A)}<br>
           B. ${esc(q.options.B)}<br>
           C. ${esc(q.options.C)}<br>
@@ -1040,10 +1155,10 @@ function renderAiPreview(){
         <div class="list-meta">
           <span class="pill">${esc(q.subject)}</span>
           ${q.chapter?`<span class="pill blue">${esc(q.chapter)}</span>`:""}
-          <span class="pill ${q.needsReview?"red":""}">答 ${esc(answerText(q))}</span>
+          <span class="pill">${q.type==="glossary"?"名詞解釋":"答 "+esc(q.answer)}</span>
           ${q.source?`<span class="pill">${esc(q.source)}</span>`:""}
         </div>
-        ${!isDefinition(q)&&q.explanation?`<div class="hint" style="margin-top:8px">${esc(q.explanation)}</div>`:""}
+        ${q.explanation?`<div class="hint" style="margin-top:8px">${esc(q.explanation)}</div>`:""}
         <button class="btn secondary small" style="margin-top:10px" onclick="removeAi(${i})">移除這題</button>
       </div>`).join("")}
   `;
@@ -1064,15 +1179,12 @@ function addAiAll(){
 }
 function addManual(){
   const q=getManual();
-  if(!q.question||(isDefinition(q)?!q.explanation:(!q.options.A||!q.options.B||!q.options.C||!q.options.D))){toast(isDefinition(q)?"名詞與名詞解釋都要填":"題目和四個選項都要填");return}
-  if(EDIT_ID){
-    const old=BANK.find(x=>x.id===EDIT_ID);
-    if(old){q.id=old.id;q.createdAt=old.createdAt;q.stats=old.stats;q.srs=old.srs;BANK=BANK.map(x=>x.id===EDIT_ID?q:x);}
-    EDIT_ID=null;save();toast("題目已修改");renderAll();go("bank");
-  }else{BANK.unshift(q);save();toast("已加入題庫");renderAll();}
+  if(q.type==="glossary"){
+    if(!q.term||!q.answer){toast("名詞和答案都要填");return}
+  }else
+  if(!q.question||!q.options.A||!q.options.B||!q.options.C||!q.options.D){toast("題目和四個選項都要填");return}
+  BANK.unshift(q);save();toast("已加入題庫");renderAll();
 }
-function editQ(id){EDIT_ID=id;go("add");}
-function cancelEdit(){EDIT_ID=null;renderAdd();}
 function addBatch(){
   const text=val("batchText");
   const qs=parseBatch(text);
@@ -1086,24 +1198,26 @@ function parseBatch(text){
     const qLines=[];
     lines.forEach(line=>{
       let m;
-      if((m=line.match(/^(科目|subject)[:：]\s*(.+)$/i)))q.subject=m[2];
+      if((m=line.match(/^(科目|subject)[:：]\s*(.+)$/i))){q.subject=m[2];if(glossarySubjects.includes(q.subject))q.type="glossary";}
+      else if((m=line.match(/^(題型|type)[:：]\s*(glossary|名詞解釋)$/i)))q.type="glossary";
       else if((m=line.match(/^(章節|chapter)[:：]\s*(.+)$/i)))q.chapter=m[2];
+      else if((m=line.match(/^(名詞|term)[:：]\s*(.+)$/i))){q.type="glossary";q.term=m[2];}
       else if((m=line.match(/^(題目|question)[:：]\s*(.+)$/i)))qLines.push(m[2]);
       else if((m=line.match(/^[\(（]?([ABCD])[\)）.、:：]\s*(.+)$/i)))q.options[m[1].toUpperCase()]=m[2];
-      else if((m=line.match(/^(答案|answer|正解)[:：]\s*(.+)$/i)))q.answer=m[2];
+      else if((m=line.match(/^(答案|answer|正解)[:：]\s*(.+)$/i)))q.answer=q.type==="glossary"?m[2]:m[2].trim().charAt(0).toUpperCase();
       else if((m=line.match(/^(解析|解釋|explanation)[:：]\s*(.+)$/i)))q.explanation=m[2];
       else if((m=line.match(/^(來源|source)[:：]\s*(.+)$/i)))q.source=m[2];
       else qLines.push(line);
     });
     q.question=qLines.join("\n");
     return normalize(q);
-  }).filter(q=>q.question&&(isDefinition(q)?q.explanation:(q.options.A&&q.options.B&&q.options.C&&q.options.D)));
+  }).filter(q=>q.type==="glossary"?(q.term&&q.answer):(q.question&&q.options.A&&q.options.B&&q.options.C&&q.options.D&&q.answer));
 }
 function renderPractice(){
   const el=document.getElementById("v-practice");
   if(!CURRENT){
     el.innerHTML=`
-      <div class="section" style="margin-top:0">選擇練習範圍</div>
+      <div class="section" style="margin-top:0">練習範圍</div>
       <div class="card">
         <button class="btn" onclick="startPractice('due')">今日複習（${BANK.filter(due).length}）</button>
         <button class="btn secondary" style="margin-top:9px" onclick="startPractice('wrong')">錯題本（${BANK.filter(wrong).length}）</button>
@@ -1122,9 +1236,6 @@ function startPractice(mode,subject){
   if(mode==="wrong")pool=BANK.filter(wrong);
   if(mode==="all")pool=BANK.slice();
   if(mode==="subject")pool=BANK.filter(q=>q.subject===subject);
-  const pending=pool.filter(q=>!isDefinition(q)&&!q.answer).length;
-  pool=pool.filter(q=>isDefinition(q)||q.answer);
-  if(pending)toast(pending+" 題答案待確認，已略過");
   QUEUE=shuffle(pool);
   if(!QUEUE.length){toast("這個範圍目前沒有題目");return}
   META.sessions=(META.sessions||0)+1;
@@ -1132,9 +1243,7 @@ function startPractice(mode,subject){
   go("practice");
 }
 function questionCard(q){
-  PICKS=[];
-  if(isDefinition(q))return definitionCard(q);
-  const multiple=answerKeys(q.answer).length>1;
+  if(q.type==="glossary")return glossaryCard(q);
   return `
     <div class="card">
       <div class="row wrap">
@@ -1143,10 +1252,8 @@ function questionCard(q){
         ${q.source?`<span class="pill">${esc(q.source)}</span>`:""}
       </div>
       <div class="qtitle">${esc(q.question)}</div>
-      ${multiple?`<div class="hint">複選題：請選出所有正確選項，再按「送出答案」。</div>`:""}
-      ${["A","B","C","D"].map(k=>`<button class="opt" id="opt${k}" onclick="toggleAnswer('${q.id}','${k}')">${k}. ${esc(q.options[k])}</button>`).join("")}
-      <button class="btn" id="submitAnswer" style="margin-top:10px" onclick="submitAnswer('${q.id}')">送出答案</button>
-      <div class="result-banner" id="resultBanner" role="status" aria-live="polite"></div>
+      ${["A","B","C","D"].map(k=>`<button class="opt" id="opt${k}" onclick="answer('${q.id}','${k}')">${k}. ${esc(q.options[k])}</button>`).join("")}
+      <div class="feedback" id="feedback"></div>
       <div class="explain" id="explain">${esc(q.explanation||"沒有解析。")}</div>
       <div class="row" id="nextRow" style="display:none;margin-top:12px">
         <button class="btn grow" onclick="nextQ()">下一題</button>
@@ -1155,81 +1262,26 @@ function questionCard(q){
     </div>
   `;
 }
-function definitionCard(q){
-  return `
-    <div class="card">
-      <div class="row wrap">
-        <span class="pill">${esc(q.subject)}</span>
-        ${q.chapter?`<span class="pill blue">${esc(q.chapter)}</span>`:""}
-        ${q.source?`<span class="pill">${esc(q.source)}</span>`:""}
-      </div>
-      <div class="hint" style="margin-top:12px">先想想看它的意思，再翻開解釋自評。</div>
-      <div class="definition-card">
-        <div class="definition-term">${esc(q.question)}</div>
-        <div class="definition-answer" id="definitionAnswer">${esc(q.explanation||"沒有名詞解釋。")}</div>
-      </div>
-      <button class="btn" id="revealDefinition" onclick="revealDefinition()">查看名詞解釋</button>
-      <div class="row definition-actions" id="definitionActions">
-        <button class="btn secondary grow" onclick="markDefinition('${q.id}',false)">還不熟</button>
-        <button class="btn grow" onclick="markDefinition('${q.id}',true)">我記得</button>
-      </div>
-      <div class="result-banner" id="resultBanner" role="status" aria-live="polite"></div>
-      <div class="row" id="nextRow" style="display:none;margin-top:12px">
-        <button class="btn grow" onclick="nextQ()">下一張</button>
-        <button class="btn secondary grow" onclick="CURRENT=null;renderPractice()">結束</button>
-      </div>
-    </div>
-  `;
+function glossaryCard(q){
+  return `<div class="card">
+    <div class="row wrap"><span class="pill">${esc(q.subject)}</span>${q.chapter?`<span class="pill blue">${esc(q.chapter)}</span>`:""}${q.source?`<span class="pill">${esc(q.source)}</span>`:""}</div>
+    <div class="hint" style="margin-top:15px">名詞</div><div class="qtitle">${esc(q.term)}</div>
+    <button class="btn" id="revealBtn" style="width:100%" onclick="revealGlossary()">顯示答案</button>
+    <div class="flashcard-answer" id="glossaryAnswer"><b>答案</b><br>${esc(q.answer)}</div>
+    <div class="row" id="glossaryRate" style="display:none;margin-top:12px"><button class="btn grow" onclick="gradeGlossary('${q.id}',true)">○ 我答對了</button><button class="btn danger grow" onclick="gradeGlossary('${q.id}',false)">✕ 我忘記了</button></div>
+    <div class="row" id="nextRow" style="display:none;margin-top:12px"><button class="btn grow" onclick="nextQ()">下一題</button><button class="btn secondary grow" onclick="CURRENT=null;renderPractice()">結束</button></div>
+  </div>`;
 }
-function revealDefinition(){
-  document.getElementById("definitionAnswer").style.display="block";
-  document.getElementById("revealDefinition").style.display="none";
-  document.getElementById("definitionActions").style.display="flex";
-}
-function markDefinition(id,known){
+function revealGlossary(){document.getElementById("glossaryAnswer").classList.add("show");document.getElementById("revealBtn").style.display="none";document.getElementById("glossaryRate").style.display="flex";}
+function answer(id,k){
   const q=BANK.find(x=>x.id===id);if(!q)return;
-  document.querySelectorAll("#definitionActions button").forEach(b=>b.disabled=true);
-  q.stats.seen++;q.srs.last=Date.now();
-  if(known){
-    q.stats.correct++;q.stats.streak++;
-    q.srs.level=Math.min((q.srs.level||0)+1,intervals.length-1);
-  }else{
-    q.stats.wrong++;q.stats.streak=0;q.srs.level=0;
-  }
-  q.srs.due=Date.now()+intervals[q.srs.level]*86400000;
-  META.doneToday=(META.doneToday||0)+1;
-  const banner=document.getElementById("resultBanner");
-  banner.className="result-banner "+(known?"success":"error");
-  banner.innerHTML=known
-    ?`<div class="result-title"><span class="result-icon">✓</span>記得了！</div><div class="result-detail">連續記得：${q.stats.streak} 張</div>`
-    :`<div class="result-title"><span class="result-icon">✕</span>再複習一次</div><div class="result-detail">已排入近期複習。</div>`;
-  document.getElementById("nextRow").style.display="flex";
-  save();
-}
-function toggleAnswer(id,k){
-  const q=BANK.find(x=>x.id===id);if(!q)return;
-  if(answerKeys(q.answer).length>1){
-    PICKS=PICKS.includes(k)?PICKS.filter(x=>x!==k):[...PICKS,k];
-  }else PICKS=[k];
-  ["A","B","C","D"].forEach(x=>document.getElementById("opt"+x).classList.toggle("selected",PICKS.includes(x)));
-}
-function submitAnswer(id){
-  const q=BANK.find(x=>x.id===id);if(!q)return;
-  if(!PICKS.length){toast("請先選擇答案");return;}
-  const correct=answerKeys(q.answer),ok=PICKS.length===correct.length&&PICKS.every(x=>correct.includes(x));
+  const ok=k===q.answer;
   ["A","B","C","D"].forEach(x=>{
     const b=document.getElementById("opt"+x);
     b.disabled=true;
-    if(correct.includes(x)){
-      b.classList.add("correct");
-      b.insertAdjacentHTML("beforeend",'<span class="option-result ok">✓ 正確答案</span>');
-    }
-    if(PICKS.includes(x)&&!correct.includes(x)){
-      b.classList.add("wrong");
-      b.insertAdjacentHTML("beforeend",'<span class="option-result bad">✕ 你的選擇</span>');
-    }
+    if(x===q.answer)b.classList.add("correct");
+    if(x===k&&!ok)b.classList.add("wrong");
   });
-  document.getElementById("submitAnswer").disabled=true;
   q.stats.seen++;q.srs.last=Date.now();
   if(ok){
     q.stats.correct++;q.stats.streak++;
@@ -1239,20 +1291,22 @@ function submitAnswer(id){
   }
   q.srs.due=Date.now()+intervals[q.srs.level]*86400000;
   META.doneToday=(META.doneToday||0)+1;
-  const answers=correct.join("、");
-  const picked=PICKS.join("、");
-  const banner=document.getElementById("resultBanner");
-  banner.className="result-banner "+(ok?"success":"error");
-  banner.innerHTML=ok
-    ?`<div class="result-title"><span class="result-icon">✓</span>回答正確！</div><div class="result-detail">正確答案：<span class="answer-chip">${esc(answers)}</span>　連續答對：${q.stats.streak} 題<br><button class="btn secondary small" style="margin-top:9px" onclick="toggleExplanation()">查看解析</button></div>`
-    :`<div class="result-title"><span class="result-icon">✕</span>回答錯誤</div><div class="result-detail">你的答案：<span class="answer-chip">${esc(picked)}</span><br>正確答案：<span class="answer-chip">${esc(answers)}</span></div>`;
-  if(!ok)document.getElementById("explain").style.display="block";
+  document.getElementById("explain").style.display="block";
+  const feedback=document.getElementById("feedback");
+  feedback.className="feedback "+(ok?"ok":"no");
+  feedback.innerHTML=ok?"✓ 回答正確！<br><small>正確答案："+q.answer+"</small>":"✕ 回答錯誤<br><small>你的答案："+k+"　正確答案："+q.answer+"</small>";
+  if(navigator.vibrate)navigator.vibrate(ok?60:[70,50,70]);
   document.getElementById("nextRow").style.display="flex";
   save();
 }
-function toggleExplanation(){
-  const el=document.getElementById("explain");
-  if(el)el.style.display=el.style.display==="block"?"none":"block";
+function gradeGlossary(id,ok){
+  const q=BANK.find(x=>x.id===id);if(!q)return;
+  q.stats.seen++;q.srs.last=Date.now();
+  if(ok){q.stats.correct++;q.stats.streak++;q.srs.level=Math.min((q.srs.level||0)+1,intervals.length-1);}
+  else{q.stats.wrong++;q.stats.streak=0;q.srs.level=0;}
+  q.srs.due=Date.now()+intervals[q.srs.level]*86400000;META.doneToday=(META.doneToday||0)+1;
+  document.getElementById("glossaryRate").style.display="none";document.getElementById("nextRow").style.display="flex";
+  if(navigator.vibrate)navigator.vibrate(ok?60:[70,50,70]);save();
 }
 function nextQ(){
   CURRENT=QUEUE.length?QUEUE.shift():null;
@@ -1269,7 +1323,7 @@ function renderBank(){
 }
 function filterBank(){
   const q=(document.getElementById("search")?.value||"").toLowerCase();
-  const list=BANK.filter(x=>!q||[x.question,x.explanation,x.source,x.subject,x.chapter].join(" ").toLowerCase().includes(q));
+  const list=BANK.filter(x=>!q||[x.question,x.term,x.answer,x.explanation,x.source,x.subject,x.chapter].join(" ").toLowerCase().includes(q));
   document.getElementById("bankList").innerHTML=list.length?list.map(listItem).join(""):`<div class="empty">找不到題目。</div>`;
 }
 function renderWrong(){
@@ -1283,16 +1337,16 @@ function renderWrong(){
 function listItem(q){
   return `
     <div class="list-item">
-      <div class="list-q">${esc(q.question)}</div>
+      <div class="list-q">${esc(q.type==="glossary"?q.term:q.question)}</div>
+      ${q.type==="glossary"?`<div class="hint" style="margin-top:7px">${esc(q.answer)}</div>`:""}
       <div class="list-meta">
         <span class="pill">${esc(q.subject)}</span>
         ${q.chapter?`<span class="pill blue">${esc(q.chapter)}</span>`:""}
         <span class="pill ${wrong(q)?"red":""}">錯 ${q.stats.wrong||0} / 對 ${q.stats.correct||0}</span>
-        <span class="pill ${q.needsReview?"red":""}">答 ${esc(answerText(q))}</span>
+        <span class="pill">${q.type==="glossary"?"名詞解釋":"答 "+esc(q.answer)}</span>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn secondary grow" onclick="preview('${q.id}')">查看</button>
-        <button class="btn secondary grow" onclick="editQ('${q.id}')">修改</button>
         <button class="btn danger" onclick="delQ('${q.id}')">刪除</button>
       </div>
     </div>
@@ -1404,7 +1458,6 @@ async function restoreCloudBackup(id){
   }
 }
 </script>
-
 
 
 </body></html>
